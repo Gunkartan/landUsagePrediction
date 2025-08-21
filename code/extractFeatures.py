@@ -46,10 +46,11 @@ if __name__ == '__main__':
                         2302: 'ยางพารา', 2303: 'ปาล์มน้ำมัน', 2403: 'ทุเรียน',
                         2404: 'เงาะ', 2405: 'มะพร้าว', 2407: 'มะม่วง',
                         2413: 'ลำไย', 2416: 'ขนุน', 2419: 'มังคุด',
-                        2420: 'ลางสาด ลองกอง', 4201: 'น้ำ'}
+                        2420: 'ลางสาด ลองกอง', 4201: 'น้ำ', 1391: 'อื่น ๆ'}
         tiles = [rasterio.open(sentinelFile) for sentinelFile in sentinelFiles]
         tileID = os.path.basename(sentinelFiles[0]).split('_')[0][0:]
-        alignedOverlaps = [extract_overlap(label, tile, tileID) for tile in tiles]
+        existingLabels = list(targetLabels.keys())
+        alignedOverlaps = [extract_overlap(label, tile, tileID, existingLabels) for tile in tiles]
         blues = [tile.read(1).astype('float32') for tile in tiles]
         greens = [tile.read(2).astype('float32') for tile in tiles]
         reds = [tile.read(3).astype('float32') for tile in tiles]

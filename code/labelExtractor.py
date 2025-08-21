@@ -1,9 +1,9 @@
 import os.path
-import numpy
+import numpy as np
 import rasterio
 from rasterio.windows import from_bounds
 
-def extract_overlap(label_raster, tile_raster, tile_id):
+def extract_overlap(label_raster, tile_raster, tile_id, targetLabels):
     label_bounds = label_raster.bounds
     tile_bounds = tile_raster.bounds
 
@@ -16,13 +16,15 @@ def extract_overlap(label_raster, tile_raster, tile_id):
 
         label_window = from_bounds(*intersection, transform=label_raster.transform)
         overlap_data = label_raster.read(1, window=label_window)
+        maskMisc = ~np.isin(overlap_data, targetLabels)
+        overlap_data[maskMisc] = 1391
 
         print(overlap_data.shape)
         # Calculate the window in the small raster
         raster_window = from_bounds(*intersection, transform=tile_raster.transform)
 
         # Prepare an output array matching the small raster's size
-        aligned_overlap = numpy.full((tile_raster.height, tile_raster.width), 0,
+        aligned_overlap = np.full((tile_raster.height, tile_raster.width), 0,
                                   dtype=label_raster.dtypes[0])
 
         # Calculate row/column offsets in the small raster
