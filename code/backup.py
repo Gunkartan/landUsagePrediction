@@ -5,12 +5,13 @@ import pandas as pd
 from labelExtractor import extract_overlap
 from collections import defaultdict
 
-def computeStatVals(targetLabels, alignedOverlaps, ndvis, ndwis, ndbis, numStatVals, numIndexes, numMonths):
+def computeStatVals(targetLabels, alignedOverlaps, ndvis, ndwis, evis, ndbis, numStatVals, numIndexes, numMonths):
     statDict = defaultdict(list)
 
     for targetLabel in targetLabels:
         filteredIndexes = [[np.where(alignedOverlap == targetLabel, ndvi, np.nan) for alignedOverlap, ndvi in zip(alignedOverlaps, ndvis)],
                            [np.where(alignedOverlap == targetLabel, ndwi, np.nan) for alignedOverlap, ndwi in zip(alignedOverlaps, ndwis)],
+                           [np.where(alignedOverlap == targetLabel, evi, np.nan) for alignedOverlap, evi in zip(alignedOverlaps, evis)],
                            [np.where(alignedOverlap == targetLabel, ndbi, np.nan) for alignedOverlap, ndbi in zip(alignedOverlaps, ndbis)]]
         validIndexes = [[filteredIndex[np.isfinite(filteredIndex)] for filteredIndex in filteredIndexes[i]] for i in range(numIndexes)]
 
@@ -36,11 +37,11 @@ if __name__ == '__main__':
     months = ['October', 'November', 'December']
     dates = ['10-31', '11-30', '12-31']
     statVals = ['mean', 'STD', 'minimum', 'maximum']
-    indexes = ['NDVI', 'NDWI', 'NDBI']
+    indexes = ['NDVI', 'NDWI', 'EVI', 'NDBI']
     columns = [f'{month} {statVal} {index}' for statVal in statVals for index in indexes for month in months]
     columns.append('Class')
     numStatVals = 4
-    numIndexes = 3
+    numIndexes = 4
     numMonths = 3
 
     for year in years:
@@ -63,8 +64,9 @@ if __name__ == '__main__':
         swirs = [tile.read(8).astype('float32') for tile in tiles]
         ndvis = [(red - nir) / (red + nir) for red, nir in zip(reds, nirs)]
         ndwis = [(green - nir) / (green + nir) for green, nir in zip(greens, nirs)]
+        evis = [2.5 * (nir - red) / (nir + 6 * red - 7.5 * blue + 1) for nir, red, blue in zip(nirs, reds, blues)]
         ndbis = [(swir - nir) / (swir + nir) for swir, nir in zip(swirs, nirs)]
-        statDict = computeStatVals(targetLabels, alignedOverlaps, ndvis, ndwis, ndbis, numStatVals, numIndexes, numMonths)
+        statDict = computeStatVals(targetLabels, alignedOverlaps, ndvis, ndwis, evis, ndbis, numStatVals, numIndexes, numMonths)
         rows = []
 
         for targetLabel in statDict:
