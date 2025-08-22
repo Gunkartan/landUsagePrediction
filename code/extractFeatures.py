@@ -31,17 +31,39 @@ def computeStatVals(targetLabels, alignedOverlaps, ndvis, ndwis, ndbis, numStatV
 
     return statDict
 
+def extractRawVals(targetLabels, alignedOverlaps, ndvis, ndwis, ndbis, numPoints):
+    rawDict = defaultdict(list)
+    monthRange = range(len(ndvis))
+
+    for targetLabel in targetLabels:
+        rows, cols = np.where(alignedOverlaps[0] == targetLabel)
+        numPoints = numPoints if len(rows) >= numPoints else len(rows)
+        idx = np.random.choice(len(rows), size=numPoints, replace=False)
+        coords = list(zip(rows[idx], cols[idx]))
+
+        for r, c in coords:
+            vals = []
+            vals.extend([ndvis[m][r, c] for m in monthRange])
+            vals.extend([ndwis[m][r, c] for m in monthRange])
+            vals.extend([ndbis[m][r, c] for m in monthRange])
+            rawDict[targetLabel].append(vals)
+
+    return rawDict
+
 if __name__ == '__main__':
+    np.random.seed(42)
     years = [2018, 2020, 2024]
     months = ['October', 'November', 'December']
     dates = ['10-31', '11-30', '12-31']
     statVals = ['mean', 'STD', 'minimum', 'maximum']
     indexes = ['NDVI', 'NDWI', 'NDBI']
-    columns = [f'{month} {statVal} {index}' for statVal in statVals for index in indexes for month in months]
-    columns.append('Class')
+    rawCols = [f'{month} {index}' for index in indexes for month in months]
+    statCols = [f'{month} {statVal} {index}' for statVal in statVals for index in indexes for month in months]
+    columns = rawCols + statCols + ['Class']
     numStatVals = 4
     numIndexes = 3
     numMonths = 3
+    rows = []
 
     for year in years:
         labelFile = f'../rasterized/{year}.tif'
@@ -61,16 +83,17 @@ if __name__ == '__main__':
         reds = [tile.read(3).astype('float32') for tile in tiles]
         nirs = [tile.read(7).astype('float32') for tile in tiles]
         swirs = [tile.read(8).astype('float32') for tile in tiles]
-        ndvis = [(red - nir) / (red + nir) for red, nir in zip(reds, nirs)]
+        ndvis = [(nir - red) / (nir + red) for nir, red in zip(nirs, reds)]
         ndwis = [(green - nir) / (green + nir) for green, nir in zip(greens, nirs)]
         ndbis = [(swir - nir) / (swir + nir) for swir, nir in zip(swirs, nirs)]
         statDict = computeStatVals(targetLabels, alignedOverlaps, ndvis, ndwis, ndbis, numStatVals, numIndexes, numMonths)
-        rows = []
+        rawDict = extractRawVals(targetLabels, alignedOverlaps, ndvis, ndwis, ndbis, 100)
 
-        for targetLabel in statDict:
-            statDict[targetLabel].append(targetLabels[targetLabel])
-            rows.append(statDict[targetLabel])
+        for targetLabel in rawDict:
+            for rawVals in rawDict[targetLabel]:
+                row = rawVals + statDict[targetLabel] + [targetLabels[targetLabel]]
+                rows.append(row)
 
-        df = pd.DataFrame(rows, columns=columns)
-        df = df.round(3)
-        df.to_csv(f'{year}.csv', index=False)
+    df = pd.DataFrame(rows, columns=columns)
+    df = df.round(3)
+    df.to_csv('allYears.csv', index=False)
