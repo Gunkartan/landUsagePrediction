@@ -10,13 +10,11 @@ xTrain, xTemp, yTrain, yTemp = train_test_split(x, y, test_size=0.4, random_stat
 xCV, xTest, yCV, yTest = train_test_split(xTemp, yTemp, test_size=0.5, random_state=42, stratify=yTemp)
 print(f'{len(xTrain)} | {len(xCV)} | {len(xTest)}')
 model = XGBClassifier(
-    n_estimators=200,
-    learning_rate=0.1,
+    n_estimators=100,
     max_depth=4,
+    learning_rate=0.1,
     subsample=0.8,
     colsample_bytree=0.8,
-    random_state=42,
-    use_label_encoder=False,
     eval_metric='logloss'
 )
 model.fit(xTrain, yTrain)
