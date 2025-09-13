@@ -1,26 +1,32 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
-from sklearn.metrics import precision_score, recall_score, f1_score, classification_report
+from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.model_selection import train_test_split
 
 df = pd.read_csv('../csvs/cleaned.csv')
-x = df.iloc[:, :-1].values
-y = df.iloc[:, -1].values
+x = df.drop(columns=['Water'])
+y = df['Water']
 xTrain, xTemp, yTrain, yTemp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
-xCV, xTest, yCV, yTest = train_test_split(xTemp, yTemp, test_size=0.5, random_state=42, stratify=yTemp)
-print(f'{len(xTrain)} | {len(xCV)} | {len(xTest)}')
+xVal, xTest, yVal, yTest = train_test_split(xTemp, yTemp, test_size=0.5, random_state=42, stratify=yTemp)
 model = XGBClassifier(
-    n_estimators=100,
-    max_depth=4,
+    objective='binary:logistic',
+    eval_metric='logloss',
+    use_label_encoder=False,
     learning_rate=0.1,
+    max_depth=6,
+    n_estimators=1000,
     subsample=0.8,
     colsample_bytree=0.8,
-    eval_metric='logloss'
+    random_state=42,
+    early_stopping_rounds=20
 )
-model.fit(xTrain, yTrain)
-yCVPred = model.predict(xCV)
-precision = precision_score(yCV, yCVPred)
-recall = recall_score(yCV, yCVPred)
-f1 = f1_score(yCV, yCVPred)
-print(f'{precision:.3f} | {recall:.3f} | {f1:.3f}')
-print(classification_report(yCV, yCVPred))
+model.fit(
+    xTrain,
+    yTrain,
+    eval_set=[(xVal, yVal)],
+    verbose=True
+)
+yPred = model.predict(xVal)
+print(f'The precision score is {precision_score(yVal, yPred)}.')
+print(f'The recall score is {recall_score(yVal, yPred)}.')
+print(f'The F1 score is {f1_score(yVal, yPred)}.')
