@@ -10,23 +10,15 @@ xTrain, xTemp, yTrain, yTemp = train_test_split(x, y, test_size=0.4, random_stat
 xVal, xTest, yVal, yTest = train_test_split(xTemp, yTemp, test_size=0.5, random_state=42, stratify=yTemp)
 model = XGBClassifier(
     objective='binary:logistic',
-    eval_metric='logloss',
-    use_label_encoder=False,
     learning_rate=0.1,
     max_depth=6,
-    n_estimators=1000,
+    n_estimators=500,
     subsample=0.8,
     colsample_bytree=0.8,
-    random_state=42,
-    early_stopping_rounds=20
+    random_state=42
 )
-model.fit(
-    xTrain,
-    yTrain,
-    eval_set=[(xVal, yVal)],
-    verbose=True
-)
+model.fit(xTrain, yTrain, eval_set=[(xVal, yVal)], verbose=True)
 yPred = model.predict(xVal)
-print(f'The precision score is {precision_score(yVal, yPred)}.')
-print(f'The recall score is {recall_score(yVal, yPred)}.')
-print(f'The F1 score is {f1_score(yVal, yPred)}.')
+print(f'The precision score is {precision_score(yVal, yPred):.4f}.')
+print(f'The recall score is {recall_score(yVal, yPred):.4f}.')
+print(f'The F1 score is {f1_score(yVal, yPred):.4f}.')
