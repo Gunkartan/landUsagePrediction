@@ -49,22 +49,22 @@ model.fit(xTrain, yTrain)
 # print(f'The best set of hyperparameters is {random.best_params_}.')
 # print(f'The best CV F1 score is {random.best_score_:.3f}.')
 # best = random.best_estimator_
-yCVPred = model.predict(xCV)
-# yCVProb = model.predict_proba(xCV)[:, 1]
-# thresholds = [0.5, 0.45, 0.4, 0.35, 0.3]
+# yCVPred = model.predict(xCV)
+yCVProb = model.predict_proba(xCV)[:, 1]
+thresholds = [0.5, 0.55, 0.6, 0.65]
 
-# for threshold in thresholds:
-#     preds = (yCVProb >= threshold).astype(int)
-#     print(f'The threshold is {threshold}. The scores are below.')
-#     print(f'The precision score is {precision_score(yCV, preds, average='binary'):.3f}.')
-#     print(f'The recall score is {recall_score(yCV, preds, average='binary'):.3f}.')
-#     print(f'The F1 score is {f1_score(yCV, preds, average='binary'):.3f}.')
+for threshold in thresholds:
+    preds = (yCVProb >= threshold).astype(int)
+    print(f'The threshold is {threshold}. The scores are below.')
+    print(f'The precision score is {precision_score(yCV, preds, average='binary'):.3f}.')
+    print(f'The recall score is {recall_score(yCV, preds, average='binary'):.3f}.')
+    print(f'The F1 score is {f1_score(yCV, preds, average='binary'):.3f}.')
 
-fn = (yCV == 1) & (yCVPred == 0)
-missedClasses = df.loc[yCV.index[fn], 'Label']
-missedCounts = missedClasses.value_counts()
-print(f'The precision score is {precision_score(yCV, yCVPred, average='binary'):.3f}.')
-print(f'The recall score is {recall_score(yCV, yCVPred, average='binary'):.3f}.')
-print(f'The F1 score is {f1_score(yCV, yCVPred, average='binary'):.3f}.')
-print(f'The number of false negatives by class is below.')
-print(missedCounts)
+# fn = (yCV == 1) & (yCVPred == 0)
+# missedClasses = df.loc[yCV.index[fn], 'Label']
+# missedCounts = missedClasses.value_counts()
+# print(f'The precision score is {precision_score(yCV, yCVPred, average='binary'):.3f}.')
+# print(f'The recall score is {recall_score(yCV, yCVPred, average='binary'):.3f}.')
+# print(f'The F1 score is {f1_score(yCV, yCVPred, average='binary'):.3f}.')
+# print(f'The number of false negatives by class is below.')
+# print(missedCounts)
