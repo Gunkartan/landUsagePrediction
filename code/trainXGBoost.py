@@ -2,6 +2,7 @@ import pandas as pd
 import xgboost as xgb
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import precision_score, recall_score, f1_score
+from collections import Counter
 
 df = pd.read_csv('../csvs/cleanedWithMNDWI.csv')
 x = df.drop(columns=['Label', 'Water'])
