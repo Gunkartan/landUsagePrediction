@@ -3,7 +3,7 @@ import xgboost as xgb
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import precision_score, recall_score, f1_score
 
-df = pd.read_csv('../csvs/cleanedWithLabels.csv')
+df = pd.read_csv('../csvs/cleanedWithMNDWI.csv')
 x = df.drop(columns=['Label', 'Water'])
 y = df['Water']
 xTrain, xTemp, yTrain, yTemp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
@@ -41,12 +41,22 @@ model.fit(xTrain, yTrain)
 # print(f'The best set of hyperparameters is {random.best_params_}.')
 # print(f'The best CV F1 score is {random.best_score_:.3f}.')
 # best = random.best_estimator_
-yCVPred = model.predict(xCV)
-fn = (yCV == 1) & (yCVPred == 0)
-missedClasses = df.loc[yCV.index[fn], 'Label']
-missedCounts = missedClasses.value_counts()
-print(f'The precision score is {precision_score(yCV, yCVPred, average='binary'):.3f}.')
-print(f'The recall score is {recall_score(yCV, yCVPred, average='binary'):.3f}.')
-print(f'The F1 score is {f1_score(yCV, yCVPred, average='binary'):.3f}.')
-print(f'The number of false negatives by class is below.')
-print(missedCounts)
+# yCVPred = model.predict(xCV)
+yCVProb = model.predict_proba(xCV)[:, 1]
+thresholds = [0.5, 0.45, 0.4, 0.35, 0.3]
+
+for threshold in thresholds:
+    preds = (yCVProb >= threshold).astype(int)
+    print(f'The threshold is {threshold}. The scores are below.')
+    print(f'The precision score is {precision_score(yCV, preds, average='binary'):.3f}.')
+    print(f'The recall score is {recall_score(yCV, preds, average='binary'):.3f}.')
+    print(f'The F1 score is {f1_score(yCV, preds, average='binary'):.3f}.')
+
+# fn = (yCV == 1) & (yCVPred == 0)
+# missedClasses = df.loc[yCV.index[fn], 'Label']
+# missedCounts = missedClasses.value_counts()
+# print(f'The precision score is {precision_score(yCV, yCVPred, average='binary'):.3f}.')
+# print(f'The recall score is {recall_score(yCV, yCVPred, average='binary'):.3f}.')
+# print(f'The F1 score is {f1_score(yCV, yCVPred, average='binary'):.3f}.')
+# print(f'The number of false negatives by class is below.')
+# print(missedCounts)
