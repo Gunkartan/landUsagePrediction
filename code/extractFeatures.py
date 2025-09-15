@@ -10,8 +10,9 @@ def extractRawVals(alignedOverlap: np.ndarray, ndvi: np.ndarray, ndwi: np.ndarra
 
     for r, c in zip(rows, cols):
         vals = [ndvi[r, c], ndwi[r, c], evi[r, c], ndbi[r, c]]
-        label = 1 if str(alignedOverlap[r, c]).startswith('4') else 0
-        features.append(vals + [label])
+        raw = int(alignedOverlap[r, c])
+        label = 1 if str(raw).startswith('4') else 0
+        features.append([raw] + vals + [label])
 
     return features
 
@@ -27,7 +28,7 @@ if __name__ == '__main__':
     tile = rasterio.open(sentinelFile)
     tileID = os.path.basename(sentinelFile).split('_')[0][0:]
     alignedOverlap = extract_overlap(label, tile, tileID)
-    columns = ['NDVI', 'NDWI', 'EVI', 'NDBI', 'Water']
+    columns = ['Label', 'NDVI', 'NDWI', 'EVI', 'NDBI', 'Water']
     blue = tile.read(1).astype('float32')
     green = tile.read(2).astype('float32')
     red = tile.read(3).astype('float32')
