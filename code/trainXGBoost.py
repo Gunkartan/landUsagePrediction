@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import precision_score, recall_score, f1_score
 from collections import Counter
 
-df = pd.read_csv('../csvs/cleanedWithMNDWI.csv')
+df = pd.read_csv('../csvs/cleanedWithStatistics.csv')
 x = df.drop(columns=['Label', 'Water'])
 y = df['Water']
 xTrain, xTemp, yTrain, yTemp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
@@ -31,7 +31,7 @@ model = xgb.XGBClassifier(
     **bestParams,
     objective='binary:logistic',
     eval_metric='logloss',
-    scale_pos_weight=scale,
+    scale_pos_weight=3,
     use_label_encoder=False,
     random_state=42
 )
