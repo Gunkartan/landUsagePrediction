@@ -1,7 +1,8 @@
 import pandas as pd
 import xgboost as xgb
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.metrics import precision_score, recall_score, f1_score, precision_recall_curve, average_precision_score
 from collections import Counter
 
 df = pd.read_csv('../csvs/cleanedWithStatistics.csv')
@@ -31,7 +32,7 @@ model = xgb.XGBClassifier(
     **bestParams,
     objective='binary:logistic',
     eval_metric='logloss',
-    scale_pos_weight=3,
+    scale_pos_weight=scale, #Using 3 yields the best result so far.
     use_label_encoder=False,
     random_state=42
 )
@@ -51,9 +52,11 @@ model.fit(xTrain, yTrain)
 # best = random.best_estimator_
 # yCVPred = model.predict(xCV)
 yCVProb = model.predict_proba(xCV)[:, 1]
-thresholds = [0.5, 0.55, 0.6, 0.65]
+precisions, recalls, thresholds = precision_recall_curve(yCV, yCVProb)
+ap = average_precision_score(yCV, yCVProb)
+thresholdList = [0.5, 0.55, 0.6, 0.65]
 
-for threshold in thresholds:
+for threshold in thresholdList:
     preds = (yCVProb >= threshold).astype(int)
     print(f'The threshold is {threshold}. The scores are below.')
     print(f'The precision score is {precision_score(yCV, preds, average='binary'):.3f}.')
@@ -68,3 +71,11 @@ for threshold in thresholds:
 # print(f'The F1 score is {f1_score(yCV, yCVPred, average='binary'):.3f}.')
 # print(f'The number of false negatives by class is below.')
 # print(missedCounts)
+plt.figure(figsize=(7, 5))
+plt.plot(recalls, precisions, label=f'The AP is {ap:.3f}.')
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.title('Precision-recall curve.')
+plt.legend()
+plt.grid(True)
+plt.show()
