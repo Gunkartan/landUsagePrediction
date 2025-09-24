@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import precision_score, recall_score, f1_score, precision_recall_curve, average_precision_score
 from collections import Counter
 
-df = pd.read_csv('../csvs/cleanedWithStatistics.csv')
+df = pd.read_csv('../csvs/cleaned.csv')
 x = df.drop(columns=['Label', 'Water'])
 y = df['Water']
 xTrain, xTemp, yTrain, yTemp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
