@@ -32,7 +32,7 @@ model = xgb.XGBClassifier(
     **bestParams,
     objective='binary:logistic',
     eval_metric='logloss',
-    scale_pos_weight=scale, #Using 3 yields the best result so far.
+    scale_pos_weight=3, #Using 3 yields the best result so far.
     use_label_encoder=False,
     random_state=42
 )
