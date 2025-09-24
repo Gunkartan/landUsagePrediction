@@ -3,3 +3,4 @@ raw/
 shapefiles/
 rasterized/
 csvs/
+.vscode/
