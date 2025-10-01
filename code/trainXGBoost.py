@@ -1,11 +1,12 @@
+import numpy as np
 import pandas as pd
 import xgboost as xgb
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.metrics import precision_score, recall_score, f1_score, precision_recall_curve, average_precision_score
+from sklearn.metrics import precision_score, recall_score, f1_score, precision_recall_curve, average_precision_score, classification_report
 from collections import Counter
 
-df = pd.read_csv('../csvs/cleanedWithMNDWI.csv')
+df = pd.read_csv('../csvs/cleanedWithStatistics.csv')
 x = df.drop(columns=['Label', 'Water'])
 y = df['Water']
 xTrain, xTemp, yTrain, yTemp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
@@ -52,17 +53,26 @@ model.fit(xTrain, yTrain)
 # best = random.best_estimator_
 # yCVPred = model.predict(xCV)
 yCVProb = model.predict_proba(xCV)[:, 1]
-precisions, recalls, thresholds = precision_recall_curve(yCV, yCVProb)
-ap = average_precision_score(yCV, yCVProb)
-thresholdList = [0.5, 0.55, 0.6, 0.65]
+# precisions, recalls, thresholds = precision_recall_curve(yCV, yCVProb)
+# ap = average_precision_score(yCV, yCVProb)
+# thresholdList = [0.5, 0.55, 0.6, 0.65]
+thresholdList = np.linspace(0, 1, 101)
+results = []
 
 for threshold in thresholdList:
     preds = (yCVProb >= threshold).astype(int)
-    print(f'The threshold is {threshold}. The scores are below.')
-    print(f'The precision score is {precision_score(yCV, preds, average='binary'):.3f}.')
-    print(f'The recall score is {recall_score(yCV, preds, average='binary'):.3f}.')
-    print(f'The F1 score is {f1_score(yCV, preds, average='binary'):.3f}.')
+    results.append((threshold, precision_score(yCV, preds, average='binary'), recall_score(yCV, preds, average='binary'), f1_score(yCV, preds, average='binary')))
+#     print(f'The threshold is {threshold}. The scores are below.')
+#     print(f'The precision score is {precision_score(yCV, preds, average='binary'):.3f}.')
+#     print(f'The recall score is {recall_score(yCV, preds, average='binary'):.3f}.')
+#     print(f'The F1 score is {f1_score(yCV, preds, average='binary'):.3f}.')
 
+metrics = pd.DataFrame(results, columns=['Thresholds', 'Precision', 'Recall', 'F1'])
+bestScore = metrics.loc[metrics['F1'].idxmax()]
+print(f'The best threshold is {bestScore['Thresholds']:.3f}.')
+print(f'The precision is {bestScore['Precision']:.3f}.')
+print(f'The recall is {bestScore['Recall']:.3f}.')
+print(f'The F1 is {bestScore['F1']:.3f}.')
 # fn = (yCV == 1) & (yCVPred == 0)
 # missedClasses = df.loc[yCV.index[fn], 'Label']
 # missedCounts = missedClasses.value_counts()
@@ -71,11 +81,11 @@ for threshold in thresholdList:
 # print(f'The F1 score is {f1_score(yCV, yCVPred, average='binary'):.3f}.')
 # print(f'The number of false negatives by class is below.')
 # print(missedCounts)
-plt.figure(figsize=(7, 5))
-plt.plot(recalls, precisions, label=f'The AP is {ap:.3f}.')
-plt.xlabel('Recall')
-plt.ylabel('Precision')
-plt.title('Precision-recall curve.')
-plt.legend()
-plt.grid(True)
-plt.show()
+# plt.figure(figsize=(7, 5))
+# plt.plot(recalls, precisions, label=f'The AP is {ap:.3f}.')
+# plt.xlabel('Recall')
+# plt.ylabel('Precision')
+# plt.title('Precision-recall curve.')
+# plt.legend()
+# plt.grid(True)
+# plt.show()
