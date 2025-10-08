@@ -4,7 +4,6 @@ import xgboost as xgb
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import precision_score, recall_score, f1_score, precision_recall_curve, average_precision_score, classification_report
-from collections import Counter
 
 df = pd.read_csv('../csvs/cleanedWithStatistics.csv')
 x = df.drop(columns=['Label', 'Water'])
@@ -18,24 +17,24 @@ xCV, xTest, yCV, yTest = train_test_split(xTemp, yTemp, test_size=0.5, random_st
 #     'subsample': [0.7, 0.8, 1.0],
 #     'colsample_bytree': [0.7, 0.8, 1.0]
 # }
-counter = Counter(yTrain)
-neg, pos = counter[0], counter[1]
+pos = yTrain.sum()
+neg = len(yTrain) - pos
 scale = neg / pos
 print(f'The positive weight will be scaled by {scale:.3f}.')
 bestParams = {
     'n_estimators': 200,
-    'max_depth': 7,
     'learning_rate': 0.2,
+    'max_depth': 7,
     'subsample': 0.8,
     'colsample_bytree': 1.0
 }
 model = xgb.XGBClassifier(
     **bestParams,
-    objective='binary:logistic',
-    eval_metric='logloss',
-    scale_pos_weight=3, #Using 3 yields the best result so far.
+    random_state=42,
     use_label_encoder=False,
-    random_state=42
+    eval_metric='logloss',
+    scale_pos_weight=scale, #Using 3 yields the best result so far.
+    n_jobs=-1
 )
 # random = RandomizedSearchCV(
 #     estimator=model,
@@ -61,18 +60,27 @@ results = []
 
 for threshold in thresholdList:
     preds = (yCVProb >= threshold).astype(int)
-    results.append((threshold, precision_score(yCV, preds, average='binary'), recall_score(yCV, preds, average='binary'), f1_score(yCV, preds, average='binary')))
+    p = precision_score(yCV, preds, zero_division=0)
+    r = recall_score(yCV, preds, zero_division=0)
+    f = f1_score(yCV, preds, zero_division=0)
+    results.append([threshold, p, r, f])
 #     print(f'The threshold is {threshold}. The scores are below.')
 #     print(f'The precision score is {precision_score(yCV, preds, average='binary'):.3f}.')
 #     print(f'The recall score is {recall_score(yCV, preds, average='binary'):.3f}.')
 #     print(f'The F1 score is {f1_score(yCV, preds, average='binary'):.3f}.')
 
 metrics = pd.DataFrame(results, columns=['Thresholds', 'Precision', 'Recall', 'F1'])
-bestScore = metrics.loc[metrics['F1'].idxmax()]
-print(f'The best threshold is {bestScore['Thresholds']:.3f}.')
-print(f'The precision is {bestScore['Precision']:.3f}.')
-print(f'The recall is {bestScore['Recall']:.3f}.')
-print(f'The F1 is {bestScore['F1']:.3f}.')
+valid = metrics[metrics['Precision'] >= 0.8]
+
+if not valid.empty:
+    bestScore = valid.loc[valid['F1'].idxmax()]
+    print(f'The best threshold is {bestScore['Thresholds']:.3f}.')
+    print(f'The precision is {bestScore['Precision']:.3f}.')
+    print(f'The recall is {bestScore['Recall']:.3f}.')
+    print(f'The F1 is {bestScore['F1']:.3f}.')
+
+else:
+    print('There are no thresholds with a precision of more than 0.8.')
 # fn = (yCV == 1) & (yCVPred == 0)
 # missedClasses = df.loc[yCV.index[fn], 'Label']
 # missedCounts = missedClasses.value_counts()

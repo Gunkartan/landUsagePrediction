@@ -41,10 +41,10 @@ def createCSV(features: list[list[any]], columns: list[str], firstWrite: bool):
     df = df.round(3)
 
     if firstWrite:
-        df.to_csv('raw.csv', index=False)
+        df.to_csv('rawWithNDBSI.csv', index=False)
 
     else:
-        df.to_csv('raw.csv', mode='a', header=False, index=False)
+        df.to_csv('rawWithNDBSI.csv', mode='a', header=False, index=False)
 
 if __name__ == '__main__':
     labelFile = f'../rasterized/2018.tif'
@@ -58,17 +58,30 @@ if __name__ == '__main__':
     red = tile.read(3).astype('float32')
     nir = tile.read(7).astype('float32')
     swir = tile.read(8).astype('float32')
+    swirLong = tile.read(9).astype('float32')
     ndvi = (nir - red) / (nir + red)
     ndwi = (green - nir) / (green + nir)
     evi = 2.5 * ((nir - red) / (nir + 6 * red - 7.5 * blue + 1))
     ndbi = (swir - nir) / (swir + nir)
     mndwi = (green - swir) / (green + swir)
+    bsi = ((red + swir) - (nir + blue)) / ((red + swir) + (nir + blue))
+    ndsi = (swir - green) / (swir + green)
+    ndti = (swir - swirLong) / (swir + swirLong)
+    si = (swir - nir) / (swir + nir)
+    ibi = ((ndbi - ((ndvi + mndwi) / 2)) / (ndbi + ((ndvi + mndwi) / 2)))
+    ndbsi = (si + ibi) / 2
     indicesDict = {
         'NDVI': ndvi,
         'NDWI': ndwi,
         'EVI': evi,
         'NDBI': ndbi,
-        'MNDWI': mndwi
+        'MNDWI': mndwi,
+        'BSI': bsi,
+        'NDSI': ndsi,
+        'NDTI': ndti,
+        'SI': si,
+        'IBI': ibi,
+        'NDBSI': ndbsi
     }
     blockSize = 1024
     numRows, numCols = alignedOverlap.shape
