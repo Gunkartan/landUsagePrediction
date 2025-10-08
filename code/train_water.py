@@ -4,7 +4,7 @@ import xgboost as xgb
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import precision_score, recall_score, f1_score
 
-df = pd.read_csv('../csvs/cleanedWithGRRI.csv')
+df = pd.read_csv('../csvs/cleanedWithRSR.csv')
 x = df.drop(columns=['Label', 'Water'])
 y = df['Water']
 x_train, x_temp, y_train, y_temp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
@@ -28,7 +28,7 @@ model = xgb.XGBClassifier(
     random_state=42,
     # use_label_encoder=False,
     # eval_metrics='logloss',
-    scale_pos_weight=3, #The candidates are 2, 3, 4, and 7.
+    scale_pos_weight=2, #The candidates are 2, 3, 4, and 7.
     n_jobs=-1
 )
 random = RandomizedSearchCV(
