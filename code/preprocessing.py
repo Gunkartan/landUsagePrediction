@@ -5,7 +5,7 @@ if __name__ == '__main__':
     chunk_size = 100000
     chunks = []
 
-    for chunk in pd.read_csv('../csvs/rawWithSNR.csv', chunksize=chunk_size):
+    for chunk in pd.read_csv('../csvs/rawWithBRI.csv', chunksize=chunk_size):
         chunk.replace([np.inf, -np.inf], np.nan, inplace=True)
         chunk = chunk.dropna()
         chunks.append(chunk)
@@ -14,4 +14,4 @@ if __name__ == '__main__':
     print(df_cleaned.shape)
     print(df_cleaned['Water'].value_counts())
     print(df_cleaned.head(15))
-    df_cleaned.to_csv('cleanedWithSNR.csv', index=False)
+    df_cleaned.to_csv('cleanedWithBRI.csv', index=False)
