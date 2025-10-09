@@ -33,10 +33,10 @@ def create_csv(features: list[list[any]], cols: list[str], first_write: bool):
     df = df.round(3)
 
     if first_write:
-        df.to_csv('rawTrimmed.csv', index=False)
+        df.to_csv('rawMoreTrimmed.csv', index=False)
 
     else:
-        df.to_csv('rawTrimmed.csv', mode='a', header=False, index=False)
+        df.to_csv('rawMoreTrimmed.csv', mode='a', header=False, index=False)
 
 if __name__ == '__main__':
     label_file = f'../rasterized/2018.tif'
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     ibi = ((ndbi - ((ndvi + mndwi) / 2)) / (ndbi + ((ndvi + mndwi) / 2)))
     ndbsi = (si + ibi) / 2
     bi = (red + green + blue) / 3
-    nri = (red - green) / (red + green)
+    # nri = (red - green) / (red + green)
     rbc = (red - blue) / (red + blue)
     grri = green / red
     rsr = red / swir_long
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         # 'IBI': ibi,
         'NDBSI': ndbsi, #Pass.
         'BI': bi, #Pass.
-        'NRI': nri,
+        # 'NRI': nri,
         'RBC': rbc, #Pass.
         'GRRI': grri, #Pass.
         'RSR': rsr, #Pass.
