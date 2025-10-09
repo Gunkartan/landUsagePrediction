@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import xgboost as xgb
+from xgboost import plot_importance
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import precision_score, recall_score, f1_score
 
@@ -28,7 +30,7 @@ model = xgb.XGBClassifier(
     random_state=42,
     # use_label_encoder=False,
     # eval_metrics='logloss',
-    scale_pos_weight=2, #The candidates are 2, 3, 4, and 7.
+    scale_pos_weight=2, #Using 2 gives the best result so far.
     n_jobs=-1
 )
 random = RandomizedSearchCV(
@@ -69,3 +71,9 @@ if not valid.empty:
 
 else:
     print('There are no thresholds with a precision or recall of more than 0.8.')
+
+plt.figure(figsize=(10, 8))
+plot_importance(model, importance_type='gain')
+plt.title('Feature importance.')
+plt.tight_layout()
+plt.show()
