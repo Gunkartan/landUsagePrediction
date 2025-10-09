@@ -15,7 +15,7 @@ def compute_neighborhood_features(arr: np.ndarray, size: int):
 def extract_raw_vals(aligned_overlap: np.ndarray, indices_dict: dict):
     mask = aligned_overlap != 0
     raw_vals = aligned_overlap[mask].astype(int)
-    labels = np.array([1 if str(val).startswith('4') else 0 for val in raw_vals])
+    labels = np.array([1 if str(val).startswith('1') else 0 for val in raw_vals])
     features = [raw_vals]
 
     for name, arr in indices_dict.items():
@@ -33,10 +33,10 @@ def create_csv(features: list[list[any]], cols: list[str], first_write: bool):
     df = df.round(3)
 
     if first_write:
-        df.to_csv('rawMoreTrimmed.csv', index=False)
+        df.to_csv('rawBuilding.csv', index=False)
 
     else:
-        df.to_csv('rawMoreTrimmed.csv', mode='a', header=False, index=False)
+        df.to_csv('rawBuilding.csv', mode='a', header=False, index=False)
 
 if __name__ == '__main__':
     label_file = f'../rasterized/2018.tif'
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     for name in indices_dict.keys():
         columns.extend([name, f'{name} mean', f'{name} variance'])
 
-    columns.append('Water')
+    columns.append('Building')
     all_features = []
 
     for row_start in range(0, num_rows, block_size):
