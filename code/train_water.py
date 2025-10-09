@@ -4,7 +4,7 @@ import xgboost as xgb
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import precision_score, recall_score, f1_score
 
-df = pd.read_csv('../csvs/cleanedWithRNR.csv')
+df = pd.read_csv('../csvs/cleanedWithSNR.csv')
 x = df.drop(columns=['Label', 'Water'])
 y = df['Water']
 x_train, x_temp, y_train, y_temp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
