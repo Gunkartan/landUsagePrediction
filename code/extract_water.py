@@ -33,10 +33,10 @@ def create_csv(features: list[list[any]], cols: list[str], first_write: bool):
     df = df.round(3)
 
     if first_write:
-        df.to_csv('rawWithBSR.csv', index=False)
+        df.to_csv('rawWithRNR.csv', index=False)
 
     else:
-        df.to_csv('rawWithBSR.csv', mode='a', header=False, index=False)
+        df.to_csv('rawWithRNR.csv', mode='a', header=False, index=False)
 
 if __name__ == '__main__':
     label_file = f'../rasterized/2018.tif'
@@ -69,6 +69,7 @@ if __name__ == '__main__':
     rsr = red / swir_long
     rgri = red / green
     bsr = blue / swir
+    rnr = red / nir
     indices_dict = {
         'NDVI': ndvi,
         'NDWI': ndwi,
@@ -87,7 +88,8 @@ if __name__ == '__main__':
         'GRRI': grri,
         'RSR': rsr,
         'RGRI': rgri,
-        'BSR': bsr
+        'BSR': bsr,
+        'RNR': rnr
     }
     block_size = 1024
     num_rows, num_cols = aligned_overlap.shape
