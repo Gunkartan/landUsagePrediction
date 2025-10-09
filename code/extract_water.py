@@ -33,10 +33,10 @@ def create_csv(features: list[list[any]], cols: list[str], first_write: bool):
     df = df.round(3)
 
     if first_write:
-        df.to_csv('rawWithBRI.csv', index=False)
+        df.to_csv('rawTrimmed.csv', index=False)
 
     else:
-        df.to_csv('rawWithBRI.csv', mode='a', header=False, index=False)
+        df.to_csv('rawTrimmed.csv', mode='a', header=False, index=False)
 
 if __name__ == '__main__':
     label_file = f'../rasterized/2018.tif'
@@ -68,32 +68,32 @@ if __name__ == '__main__':
     grri = green / red
     rsr = red / swir_long
     rgri = red / green
-    bsr = blue / swir
-    rnr = red / nir
+    # bsr = blue / swir
+    # rnr = red / nir
     snr = swir / nir
     bri = (red + green) / (nir + swir)
     indices_dict = {
         'NDVI': ndvi,
-        'NDWI': ndwi,
+        'NDWI': ndwi, #Pass.
         'EVI': evi,
-        'NDBI': ndbi,
-        'MNDWI': mndwi,
-        'BSI': bsi,
-        'NDSI': ndsi,
-        'NDTI': ndti,
-        'SI': si,
-        'IBI': ibi,
-        'NDBSI': ndbsi,
-        'BI': bi,
+        'NDBI': ndbi, #Pass.
+        'MNDWI': mndwi, #Pass.
+        'BSI': bsi, #Pass.
+        'NDSI': ndsi, #Pass.
+        'NDTI': ndti, #Pass.
+        # 'SI': si,
+        # 'IBI': ibi,
+        'NDBSI': ndbsi, #Pass.
+        'BI': bi, #Pass.
         'NRI': nri,
-        'RBC': rbc,
-        'GRRI': grri,
-        'RSR': rsr,
-        'RGRI': rgri,
-        'BSR': bsr,
-        'RNR': rnr,
-        'SNR': snr,
-        'BRI': bri
+        'RBC': rbc, #Pass.
+        'GRRI': grri, #Pass.
+        'RSR': rsr, #Pass.
+        'RGRI': rgri, #Pass.
+        # 'BSR': bsr,
+        # 'RNR': rnr,
+        'SNR': snr, #Pass.
+        'BRI': bri #Pass.
     }
     block_size = 1024
     num_rows, num_cols = aligned_overlap.shape

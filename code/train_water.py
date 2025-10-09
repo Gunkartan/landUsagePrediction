@@ -6,7 +6,7 @@ from xgboost import plot_importance
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import precision_score, recall_score, f1_score
 
-df = pd.read_csv('../csvs/cleanedWithBRI.csv')
+df = pd.read_csv('../csvs/cleanedTrimmed.csv')
 x = df.drop(columns=['Label', 'Water'])
 y = df['Water']
 x_train, x_temp, y_train, y_temp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
@@ -72,8 +72,7 @@ if not valid.empty:
 else:
     print('There are no thresholds with a precision or recall of more than 0.8.')
 
-plt.figure(figsize=(10, 8))
-plot_importance(model, importance_type='gain')
-plt.title('Feature importance.')
-plt.tight_layout()
-plt.show()
+# plt.figure(figsize=(10, 8))
+# plot_importance(model, importance_type='gain')
+# plt.title('Feature importance.')
+# plt.tight_layout()
