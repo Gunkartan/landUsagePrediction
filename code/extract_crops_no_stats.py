@@ -90,10 +90,12 @@ if __name__ == '__main__':
     label_file = '../rasterized/2018.tif'
     sentinel_file_oct = '../raw/47PQQ_2018-10-31.tif'
     sentinel_file_nov = '../raw/47PQQ_2018-11-30.tif'
+    sentinel_file_dec = '../raw/47PQQ_2018-12-31.tif'
 
     label = rasterio.open(label_file)
     tile_oct = rasterio.open(sentinel_file_oct)
     tile_nov = rasterio.open(sentinel_file_nov)
+    tile_dec = rasterio.open(sentinel_file_dec)
     tile_id = os.path.basename(sentinel_file_oct).split('_')[0]
     aligned_overlap = extract_overlap(label, tile_oct, tile_id)
 
@@ -121,6 +123,18 @@ if __name__ == '__main__':
     evi_nov = 2.5 * ((nir_nov - red_nov) / (nir_nov + 6 * red_nov - 7.5 * blue_nov + 1))
     ndbi_nov = (swir_nov - nir_nov) / (swir_nov + nir_nov)
 
+    blue_dec = tile_dec.read(1).astype('float32')
+    green_dec = tile_dec.read(2).astype('float32')
+    red_dec = tile_dec.read(3).astype('float32')
+    nir_dec = tile_dec.read(7).astype('float32')
+    swir_dec = tile_dec.read(8).astype('float32')
+    swir_long_dec = tile_dec.read(9).astype('float32')
+
+    ndvi_dec = (nir_dec - red_dec) / (nir_dec + red_dec)
+    ndwi_dec = (green_dec - nir_dec) / (green_dec + nir_dec)
+    evi_dec = 2.5 * ((nir_dec - red_dec) / (nir_dec + 6 * red_dec - 7.5 * blue_dec + 1))
+    ndbi_dec = (swir_dec - nir_dec) / (swir_dec + nir_dec)
+
     indices_dict = {
         'ndvi_oct': ndvi_oct,
         'ndwi_oct': ndwi_oct,
@@ -129,7 +143,11 @@ if __name__ == '__main__':
         'ndvi_nov': ndvi_nov,
         'ndwi_nov': ndwi_nov,
         'evi_nov': evi_nov,
-        'ndbi_nov': ndbi_nov
+        'ndbi_nov': ndbi_nov,
+        'ndvi_dec': ndvi_dec,
+        'ndwi_dec': ndwi_dec,
+        'evi_dec': evi_dec,
+        'ndbi_dec': ndbi_dec
     }
 
     block_size = 1024
