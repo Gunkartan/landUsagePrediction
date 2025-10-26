@@ -16,14 +16,6 @@ import rasterio
 import numpy as np
 import pandas as pd
 from labelExtractor import extract_overlap
-from scipy.ndimage import uniform_filter
-
-def compute_neighborhood_features(arr: np.ndarray, size: int):
-    mean = uniform_filter(arr, size=size, mode='reflect')
-    mean_square = uniform_filter(arr ** 2, size=size, mode='reflect')
-    var = mean_square - mean ** 2
-
-    return mean, var
 
 def extract_raw_vals(aligned_overlap: np.ndarray, indices_dict: dict):
     crop_classes = {
@@ -52,9 +44,34 @@ def extract_raw_vals(aligned_overlap: np.ndarray, indices_dict: dict):
 
     for name, arr in indices_dict.items():
         features.append(arr[combined_mask])
-        mean, var = compute_neighborhood_features(arr, 3)
-        features.append(mean[combined_mask])
-        features.append(var[combined_mask])
+
+    features = np.column_stack(features + [labels])
+
+    return features
+
+def extract_raw_vals_fast(aligned_overlap: np.ndarray, indices_dict: dict):
+    crop_classes = {
+        2101: 0,
+        2204: 1,
+        2205: 2,
+        2302: 3,
+        2303: 4,
+        2403: 5,
+        2404: 6,
+        2405: 7,
+        2407: 8,
+        2413: 9,
+        2416: 10,
+        2419: 11,
+        2420: 12
+    }
+    combined_mask = (aligned_overlap != 0) & ~((aligned_overlap >= 1000) & (aligned_overlap < 2000) | (aligned_overlap >= 4000) & (aligned_overlap < 5000))
+    raw_vals = aligned_overlap[combined_mask]
+    labels = np.array([crop_classes.get(val, 13) for val in raw_vals], dtype=int)
+    features = [raw_vals]
+
+    for name, arr in indices_dict.items():
+        features.append(arr[combined_mask])
 
     features = np.column_stack(features + [labels])
 
@@ -62,17 +79,16 @@ def extract_raw_vals(aligned_overlap: np.ndarray, indices_dict: dict):
 
 def create_csv(features: list[list[any]], cols: list[str], first_write: bool):
     df = pd.DataFrame(features, columns=cols)
-    df = df.round(3)
 
     if first_write:
-        df.to_csv('rawCrop.csv', index=False)
+        df.to_csv('../csvs/rawCrop.csv', index=False, float_format='%.3f')
 
     else:
-        df.to_csv('rawCrop.csv', mode='a', header=False, index=False)
+        df.to_csv('../csvs/rawCrop.csv', mode='a', header=False, index=False, float_format='%.3f')
 
 if __name__ == '__main__':
-    label_file = f'../rasterized/2018.tif'
-    sentinel_file = f'../raw/47PQQ_2018-10-31.tif'
+    label_file = '../rasterized/2018.tif'
+    sentinel_file = '../raw/47PQQ_2018-10-31.tif'
     label = rasterio.open(label_file)
     tile = rasterio.open(sentinel_file)
     tile_id = os.path.basename(sentinel_file).split('_')[0]
@@ -95,12 +111,7 @@ if __name__ == '__main__':
     }
     block_size = 1024
     num_rows, num_cols = aligned_overlap.shape
-    columns = ['Label']
-
-    for name in indices_dict.keys():
-        columns.extend([name, f'{name} mean', f'{name} variance'])
-
-    columns.append('Crops')
+    cols = ['Label'] + list(indices_dict.keys()) + ['Crops']
     all_features = []
 
     for row_start in range(0, num_rows, block_size):
@@ -108,10 +119,6 @@ if __name__ == '__main__':
             row_end = min(row_start + block_size, num_rows)
             col_end = min(col_start + block_size, num_cols)
             aligned_block = aligned_overlap[row_start:row_end, col_start:col_end]
-            indices_block = {}
-
-            for name, arr in indices_dict.items():
-                indices_block[name] = arr[row_start:row_end, col_start:col_end]
-
+            indices_block = {name: arr[row_start:row_end, col_start:col_end] for name, arr in indices_dict.items()}
             features_block = extract_raw_vals(aligned_block, indices_block)
-            create_csv(features_block, columns, row_start == 0 and col_start == 0)
+            create_csv(features_block, cols, row_start == 0 and col_start == 0)
