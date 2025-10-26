@@ -102,6 +102,8 @@ if __name__ == '__main__':
     blue_oct = tile_oct.read(1).astype('float32')
     green_oct = tile_oct.read(2).astype('float32')
     red_oct = tile_oct.read(3).astype('float32')
+    re_early_oct = tile_oct.read(4).astype('float32')
+    re_mid_oct = tile_oct.read(5).astype('float32')
     nir_oct = tile_oct.read(7).astype('float32')
     swir_oct = tile_oct.read(8).astype('float32')
     swir_long_oct = tile_oct.read(9).astype('float32')
@@ -110,10 +112,16 @@ if __name__ == '__main__':
     ndwi_oct = (green_oct - nir_oct) / (green_oct + nir_oct)
     evi_oct = 2.5 * ((nir_oct - red_oct) / (nir_oct + 6 * red_oct - 7.5 * blue_oct + 1))
     ndbi_oct = (swir_oct - nir_oct) / (swir_oct + nir_oct)
+    re_ndvi_oct = (nir_oct - re_early_oct) / (nir_oct + re_early_oct) #Red-edge NDVI.
+    ndre_oct = (nir_oct - re_mid_oct) / (nir_oct + re_mid_oct) #Normalized difference red-edge.
+    gci_oct = nir_oct / green_oct - 1 #Green chlorophyll index.
+    ndmi_oct = (nir_oct - swir_oct) / (nir_oct + swir_oct) #Normalized difference moisture index.
 
     blue_nov = tile_nov.read(1).astype('float32')
     green_nov = tile_nov.read(2).astype('float32')
     red_nov = tile_nov.read(3).astype('float32')
+    re_early_nov = tile_nov.read(4).astype('float32')
+    re_mid_nov = tile_nov.read(5).astype('float32')
     nir_nov = tile_nov.read(7).astype('float32')
     swir_nov = tile_nov.read(8).astype('float32')
     swir_long_nov = tile_nov.read(9).astype('float32')
@@ -122,10 +130,16 @@ if __name__ == '__main__':
     ndwi_nov = (green_nov - nir_nov) / (green_nov + nir_nov)
     evi_nov = 2.5 * ((nir_nov - red_nov) / (nir_nov + 6 * red_nov - 7.5 * blue_nov + 1))
     ndbi_nov = (swir_nov - nir_nov) / (swir_nov + nir_nov)
+    re_ndvi_nov = (nir_nov - re_early_nov) / (nir_nov + re_early_nov)
+    ndre_nov = (nir_nov - re_mid_nov) / (nir_nov + re_mid_nov)
+    gci_nov = nir_nov / green_nov - 1
+    ndmi_nov = (nir_nov - swir_nov) / (nir_nov + swir_nov)
 
     blue_dec = tile_dec.read(1).astype('float32')
     green_dec = tile_dec.read(2).astype('float32')
     red_dec = tile_dec.read(3).astype('float32')
+    re_early_dec = tile_dec.read(4).astype('float32')
+    re_mid_dec = tile_dec.read(5).astype('float32')
     nir_dec = tile_dec.read(7).astype('float32')
     swir_dec = tile_dec.read(8).astype('float32')
     swir_long_dec = tile_dec.read(9).astype('float32')
@@ -134,20 +148,36 @@ if __name__ == '__main__':
     ndwi_dec = (green_dec - nir_dec) / (green_dec + nir_dec)
     evi_dec = 2.5 * ((nir_dec - red_dec) / (nir_dec + 6 * red_dec - 7.5 * blue_dec + 1))
     ndbi_dec = (swir_dec - nir_dec) / (swir_dec + nir_dec)
+    re_ndvi_dec = (nir_dec - re_early_dec) / (nir_dec + re_early_dec)
+    ndre_dec = (nir_dec - re_mid_dec) / (nir_dec + re_mid_dec)
+    gci_dec = nir_dec / green_dec - 1
+    ndmi_dec = (nir_dec - swir_dec) / (nir_dec + swir_dec)
 
     indices_dict = {
         'ndvi_oct': ndvi_oct,
         'ndwi_oct': ndwi_oct,
         'evi_oct': evi_oct,
         'ndbi_oct': ndbi_oct,
+        're_ndvi_oct': re_ndvi_oct,
+        'ndre_oct': ndre_oct,
+        'gci_oct': gci_oct,
+        'ndmi_oct': ndmi_oct,
         'ndvi_nov': ndvi_nov,
         'ndwi_nov': ndwi_nov,
         'evi_nov': evi_nov,
         'ndbi_nov': ndbi_nov,
+        're_ndvi_nov': re_ndvi_nov,
+        'ndre_nov': ndre_nov,
+        'gci_nov': gci_nov,
+        'ndmi_nov': ndmi_nov,
         'ndvi_dec': ndvi_dec,
         'ndwi_dec': ndwi_dec,
         'evi_dec': evi_dec,
-        'ndbi_dec': ndbi_dec
+        'ndbi_dec': ndbi_dec,
+        're_ndvi_dec': re_ndvi_dec,
+        'ndre_dec': ndre_dec,
+        'gci_dec': gci_dec,
+        'ndmi_dec': ndmi_dec
     }
 
     block_size = 1024

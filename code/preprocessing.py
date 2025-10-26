@@ -12,4 +12,4 @@ for chunk in pd.read_csv('../csvs/rawCropSampled.csv', chunksize=chunk_size):
 df_cleaned = pd.concat(chunks, ignore_index=True)
 print(df_cleaned.shape)
 print(df_cleaned.head(15))
-df_cleaned.to_csv('../csvs/cleanedCropWithDec.csv', index=False)
+df_cleaned.to_csv('../csvs/cleanedCropWithNDMI.csv', index=False)
