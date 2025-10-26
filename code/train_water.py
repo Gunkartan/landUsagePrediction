@@ -18,9 +18,6 @@ params = {
     'subsample': [0.7, 0.8, 1.0],
     'colsample_bytree': [0.7, 0.8, 1.0]
 }
-# pos = y_train.sum()
-# neg = len(y_train) - pos
-# scale = neg / pos
 model = xgb.XGBClassifier(
     n_estimators=300,
     learning_rate=0.2,

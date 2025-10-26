@@ -3,7 +3,7 @@ import rasterio
 import numpy as np
 import pandas as pd
 from labelExtractor import extract_overlap
-from scipy.ndimage import uniform_filter, generic_filter
+from scipy.ndimage import uniform_filter
 
 def compute_neighborhood_features(arr: np.ndarray, size: int):
     mean = uniform_filter(arr, size=size, mode='reflect')

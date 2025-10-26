@@ -1,3 +1,16 @@
+#Rice: 2101
+#Cassava: 2204
+#Pineapple: 2205
+#Rubber: 2302
+#Oil palm: 2303
+#Durian: 2403
+#Rambutan: 2404
+#Coconut: 2405
+#Mango: 2407
+#Longan: 2413
+#Jackfruit: 2416
+#Mangosteen: 2419
+#Longkong: 2420
 import os.path
 import rasterio
 import numpy as np
@@ -13,16 +26,35 @@ def compute_neighborhood_features(arr: np.ndarray, size: int):
     return mean, var
 
 def extract_raw_vals(aligned_overlap: np.ndarray, indices_dict: dict):
+    crop_classes = {
+        2101: 0,
+        2204: 1,
+        2205: 2,
+        2302: 3,
+        2303: 4,
+        2403: 5,
+        2404: 6,
+        2405: 7,
+        2407: 8,
+        2413: 9,
+        2416: 10,
+        2419: 11,
+        2420: 12
+    }
     mask = aligned_overlap != 0
     raw_vals = aligned_overlap[mask].astype(int)
-    labels = np.array([1 if str(val).startswith('4') else 0 for val in raw_vals])
+    valid_mask = ~((raw_vals >= 1000) & (raw_vals < 2000) | (raw_vals >= 4000) & (raw_vals < 5000))
+    raw_vals = raw_vals[valid_mask]
+    combined_mask = np.zeros_like(aligned_overlap, dtype=bool)
+    combined_mask[mask] = valid_mask
+    labels = np.array([crop_classes.get(val, 13) for val in raw_vals], dtype=int)
     features = [raw_vals]
 
     for name, arr in indices_dict.items():
-        features.append(arr[mask])
+        features.append(arr[combined_mask])
         mean, var = compute_neighborhood_features(arr, 3)
-        features.append(mean[mask])
-        features.append(var[mask])
+        features.append(mean[combined_mask])
+        features.append(var[combined_mask])
 
     features = np.column_stack(features + [labels])
 
@@ -33,10 +65,10 @@ def create_csv(features: list[list[any]], cols: list[str], first_write: bool):
     df = df.round(3)
 
     if first_write:
-        df.to_csv('rawMoreTrimmed.csv', index=False)
+        df.to_csv('rawCrop.csv', index=False)
 
     else:
-        df.to_csv('rawMoreTrimmed.csv', mode='a', header=False, index=False)
+        df.to_csv('rawCrop.csv', mode='a', header=False, index=False)
 
 if __name__ == '__main__':
     label_file = f'../rasterized/2018.tif'
@@ -55,37 +87,19 @@ if __name__ == '__main__':
     ndwi = (green - nir) / (green + nir)
     evi = 2.5 * ((nir - red) / (nir + 6 * red - 7.5 * blue + 1))
     ndbi = (swir - nir) / (swir + nir)
-    mndwi = (green - swir) / (green + swir)
-    bsi = ((red + swir) - (nir + blue)) / ((red + swir) + (nir + blue))
-    ndsi = (swir - green) / (swir + green)
-    ndti = (swir - swir_long) / (swir + swir_long)
-    si = (swir - nir) / (swir + nir)
-    ibi = ((ndbi - ((ndvi + mndwi) / 2)) / (ndbi + ((ndvi + mndwi) / 2)))
-    ndbsi = (si + ibi) / 2
-    bi = (red + green + blue) / 3
-    rbc = (red - blue) / (red + blue)
-    grri = green / red
-    rsr = red / swir_long
-    rgri = red / green
-    snr = swir / nir
-    bri = (red + green) / (nir + swir)
+    gndvi = (nir - green) / (nir + green)
+    ndmi = (nir - swir) / (nir + swir)
+    msavi = (2 * nir + 1 - np.sqrt((2 * nir + 1) ** 2 - 8 * (nir - red))) / 2
+    vari = (green - red) / (green + red - blue)
     indices_dict = {
         'NDVI': ndvi,
         'NDWI': ndwi,
         'EVI': evi,
         'NDBI': ndbi,
-        'MNDWI': mndwi,
-        'BSI': bsi,
-        'NDSI': ndsi,
-        'NDTI': ndti,
-        'NDBSI': ndbsi,
-        'BI': bi,
-        'RBC': rbc,
-        'GRRI': grri,
-        'RSR': rsr,
-        'RGRI': rgri,
-        'SNR': snr,
-        'BRI': bri
+        'GNDVI': gndvi,
+        'NDMI': ndmi,
+        'MSAVI': msavi,
+        'VARI': vari
     }
     block_size = 1024
     num_rows, num_cols = aligned_overlap.shape
@@ -94,7 +108,7 @@ if __name__ == '__main__':
     for name in indices_dict.keys():
         columns.extend([name, f'{name} mean', f'{name} variance'])
 
-    columns.append('Water')
+    columns.append('Crops')
     all_features = []
 
     for row_start in range(0, num_rows, block_size):
