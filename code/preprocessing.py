@@ -4,7 +4,7 @@ import pandas as pd
 chunk_size = 100000
 chunks = []
 
-for chunk in pd.read_csv('../csvs/rawCrop.csv', chunksize=chunk_size):
+for chunk in pd.read_csv('../csvs/rawCropSampled.csv', chunksize=chunk_size):
     chunk.replace([np.inf, -np.inf], np.nan, inplace=True)
     chunk = chunk.dropna()
     chunks.append(chunk)
@@ -12,4 +12,4 @@ for chunk in pd.read_csv('../csvs/rawCrop.csv', chunksize=chunk_size):
 df_cleaned = pd.concat(chunks, ignore_index=True)
 print(df_cleaned.shape)
 print(df_cleaned.head(15))
-df_cleaned.to_csv('../csvs/cleanedCrop.csv', index=False)
+df_cleaned.to_csv('../csvs/cleanedCropWithNov.csv', index=False)

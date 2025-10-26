@@ -88,31 +88,53 @@ def create_csv(features: list[list[any]], cols: list[str], first_write: bool):
 
 if __name__ == '__main__':
     label_file = '../rasterized/2018.tif'
-    sentinel_file = '../raw/47PQQ_2018-10-31.tif'
+    sentinel_file_oct = '../raw/47PQQ_2018-10-31.tif'
+    sentinel_file_nov = '../raw/47PQQ_2018-11-30.tif'
+
     label = rasterio.open(label_file)
-    tile = rasterio.open(sentinel_file)
-    tile_id = os.path.basename(sentinel_file).split('_')[0]
-    aligned_overlap = extract_overlap(label, tile, tile_id)
-    blue = tile.read(1).astype('float32')
-    green = tile.read(2).astype('float32')
-    red = tile.read(3).astype('float32')
-    nir = tile.read(7).astype('float32')
-    swir = tile.read(8).astype('float32')
-    swir_long = tile.read(9).astype('float32')
-    ndvi = (nir - red) / (nir + red)
-    ndwi = (green - nir) / (green + nir)
-    evi = 2.5 * ((nir - red) / (nir + 6 * red - 7.5 * blue + 1))
-    ndbi = (swir - nir) / (swir + nir)
+    tile_oct = rasterio.open(sentinel_file_oct)
+    tile_nov = rasterio.open(sentinel_file_nov)
+    tile_id = os.path.basename(sentinel_file_oct).split('_')[0]
+    aligned_overlap = extract_overlap(label, tile_oct, tile_id)
+
+    blue_oct = tile_oct.read(1).astype('float32')
+    green_oct = tile_oct.read(2).astype('float32')
+    red_oct = tile_oct.read(3).astype('float32')
+    nir_oct = tile_oct.read(7).astype('float32')
+    swir_oct = tile_oct.read(8).astype('float32')
+    swir_long_oct = tile_oct.read(9).astype('float32')
+
+    ndvi_oct = (nir_oct - red_oct) / (nir_oct + red_oct)
+    ndwi_oct = (green_oct - nir_oct) / (green_oct + nir_oct)
+    evi_oct = 2.5 * ((nir_oct - red_oct) / (nir_oct + 6 * red_oct - 7.5 * blue_oct + 1))
+    ndbi_oct = (swir_oct - nir_oct) / (swir_oct + nir_oct)
+
+    blue_nov = tile_nov.read(1).astype('float32')
+    green_nov = tile_nov.read(2).astype('float32')
+    red_nov = tile_nov.read(3).astype('float32')
+    nir_nov = tile_nov.read(7).astype('float32')
+    swir_nov = tile_nov.read(8).astype('float32')
+    swir_long_nov = tile_nov.read(9).astype('float32')
+
+    ndvi_nov = (nir_nov - red_nov) / (nir_nov + red_nov)
+    ndwi_nov = (green_nov - nir_nov) / (green_nov + nir_nov)
+    evi_nov = 2.5 * ((nir_nov - red_nov) / (nir_nov + 6 * red_nov - 7.5 * blue_nov + 1))
+    ndbi_nov = (swir_nov - nir_nov) / (swir_nov + nir_nov)
+
     indices_dict = {
-        'NDVI': ndvi,
-        'NDWI': ndwi,
-        'EVI': evi,
-        'NDBI': ndbi
+        'ndvi_oct': ndvi_oct,
+        'ndwi_oct': ndwi_oct,
+        'evi_oct': evi_oct,
+        'ndbi_oct': ndbi_oct,
+        'ndvi_nov': ndvi_nov,
+        'ndwi_nov': ndwi_nov,
+        'evi_nov': evi_nov,
+        'ndbi_nov': ndbi_nov
     }
+
     block_size = 1024
     num_rows, num_cols = aligned_overlap.shape
     cols = ['Label'] + list(indices_dict.keys()) + ['Crops']
-    all_features = []
 
     for row_start in range(0, num_rows, block_size):
         for col_start in range(0, num_cols, block_size):
@@ -120,5 +142,5 @@ if __name__ == '__main__':
             col_end = min(col_start + block_size, num_cols)
             aligned_block = aligned_overlap[row_start:row_end, col_start:col_end]
             indices_block = {name: arr[row_start:row_end, col_start:col_end] for name, arr in indices_dict.items()}
-            features_block = extract_raw_vals(aligned_block, indices_block)
+            features_block = extract_raw_vals_fast(aligned_block, indices_block)
             create_csv(features_block, cols, row_start == 0 and col_start == 0)
