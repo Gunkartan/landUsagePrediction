@@ -45,20 +45,37 @@ model.fit(x_train, y_train)
 # best_model = search.best_estimator_
 # y_cv_pred = model.predict(x_cv)
 proba = model.predict_proba(x_cv)
-best_score = 0
+y_true = y_cv.values
+thresholds = np.linspace(0.2, 0.9, 15)
+best_t = []
 
-for t in np.linspace(0.1, 0.9, 9):
-    crop_mask = np.max(proba[:, :-1], axis=1) < t
-    preds = np.argmax(proba, axis=1)
-    preds[crop_mask] = 13
-    f = f1_score(y_cv, preds, average='macro')
+for c in range(14):
+    best_f, best_thr = 0, 0
 
-    if f > best_score:
-        best_t = t
-        best_score = f
-        best_preds = preds
+    for t in thresholds:
+        preds = np.full_like(y_true, 13)
+        preds[proba[:, c] > t] = c
+        f = f1_score(y_true, preds, average='macro')
 
-print(f'{t} | {f:.3f}')
+        if f > best_f:
+            best_f, best_thr = f, t
+
+    best_t.append(best_thr)
+    print(f'{c} | {best_thr} | {best_f:.3f}')
+
+best_preds = np.full_like(y_true, 13)
+passed = np.zeros_like(proba, dtype=bool)
+
+for c, t in enumerate(best_t):
+    passed[:, c] = proba[:, c] > t
+
+for i in range(len(y_true)):
+    valid_classes = np.where(passed[i])[0]
+
+    if len(valid_classes) > 0:
+        best_class = valid_classes[np.argmax(proba[i, valid_classes])]
+        best_preds[i] = best_class
+
 # y_cv_pred = best_model.predict(x_cv)
 class_names = ['Rice', 'Cassava', 'Pineapple', 'Rubber', 'Oil palm',
                'Durian', 'Rambutan', 'Coconut', 'Mango', 'Longan',
