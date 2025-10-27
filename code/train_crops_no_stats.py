@@ -3,12 +3,17 @@ import pandas as pd
 import xgboost as xgb
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import classification_report, f1_score
+from sklearn.utils.class_weight import compute_class_weight
 
 df = pd.read_csv('../csvs/cleanedCropAllFeatures.csv')
 x = df.drop(columns=['Label', 'Crops'])
 y = df['Crops']
 x_train, x_temp, y_train, y_temp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
 x_cv, x_test, y_cv, y_test = train_test_split(x_temp, y_temp, test_size=0.5, random_state=42, stratify=y_temp)
+classes = np.unique(y_train)
+class_weights = compute_class_weight('balanced', classes=classes, y=y_train)
+weight_map = dict(zip(classes, class_weights))
+sample_weights = np.array([weight_map[c] for c in y_train])
 param_grid = {
     'n_estimators': [300, 500, 700],
     'max_depth': [4, 6, 8],
@@ -38,7 +43,7 @@ search = RandomizedSearchCV(
     random_state=42,
     n_jobs=1
 )
-model.fit(x_train, y_train)
+model.fit(x_train, y_train, sample_weight=sample_weights)
 # search.fit(x_train, y_train)
 # print(search.best_params_)
 # print(search.best_score_)
