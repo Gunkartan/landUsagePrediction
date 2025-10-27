@@ -116,6 +116,9 @@ if __name__ == '__main__':
     ndre_oct = (nir_oct - re_mid_oct) / (nir_oct + re_mid_oct) #Normalized difference red-edge.
     gci_oct = nir_oct / green_oct - 1 #Green chlorophyll index.
     ndmi_oct = (nir_oct - swir_oct) / (nir_oct + swir_oct) #Normalized difference moisture index.
+    gndvi_oct = (nir_oct - green_oct) / (nir_oct + green_oct) #Green normalized difference vegetation index.
+    savi_oct = ((1 + 0.5) * (nir_oct - red_oct)) / (nir_oct + red_oct + 0.5) #Soil adjusted vegetation index.
+    tgi_oct = -0.5 * (190 * (red_oct - green_oct) - 120 * (red_oct - blue_oct)) #Triangular greenness index.
 
     blue_nov = tile_nov.read(1).astype('float32')
     green_nov = tile_nov.read(2).astype('float32')
@@ -134,6 +137,9 @@ if __name__ == '__main__':
     ndre_nov = (nir_nov - re_mid_nov) / (nir_nov + re_mid_nov)
     gci_nov = nir_nov / green_nov - 1
     ndmi_nov = (nir_nov - swir_nov) / (nir_nov + swir_nov)
+    gndvi_nov = (nir_nov - green_nov) / (nir_nov + green_nov)
+    savi_nov = ((1 + 0.5) * (nir_nov - red_nov)) / (nir_nov + red_nov + 0.5)
+    tgi_nov = -0.5 * (190 * (red_nov - green_nov) - 120 * (red_nov - blue_nov))
 
     blue_dec = tile_dec.read(1).astype('float32')
     green_dec = tile_dec.read(2).astype('float32')
@@ -152,6 +158,9 @@ if __name__ == '__main__':
     ndre_dec = (nir_dec - re_mid_dec) / (nir_dec + re_mid_dec)
     gci_dec = nir_dec / green_dec - 1
     ndmi_dec = (nir_dec - swir_dec) / (nir_dec + swir_dec)
+    gndvi_dec = (nir_dec - green_dec) / (nir_dec + green_dec)
+    savi_dec = ((1 + 0.5) * (nir_dec - red_dec)) / (nir_dec + red_dec + 0.5)
+    tgi_dec = -0.5 * (190 * (red_dec - green_dec) - 120 * (red_dec - blue_dec))
 
     indices_dict = {
         'ndvi_oct': ndvi_oct,
@@ -162,6 +171,9 @@ if __name__ == '__main__':
         'ndre_oct': ndre_oct,
         'gci_oct': gci_oct,
         'ndmi_oct': ndmi_oct,
+        'gndvi_oct': gndvi_oct,
+        'savi_oct': savi_oct,
+        'tgi_oct': tgi_oct,
         'ndvi_nov': ndvi_nov,
         'ndwi_nov': ndwi_nov,
         'evi_nov': evi_nov,
@@ -170,6 +182,9 @@ if __name__ == '__main__':
         'ndre_nov': ndre_nov,
         'gci_nov': gci_nov,
         'ndmi_nov': ndmi_nov,
+        'gndvi_nov': gndvi_nov,
+        'savi_nov': savi_nov,
+        'tgi_nov': tgi_nov,
         'ndvi_dec': ndvi_dec,
         'ndwi_dec': ndwi_dec,
         'evi_dec': evi_dec,
@@ -177,7 +192,10 @@ if __name__ == '__main__':
         're_ndvi_dec': re_ndvi_dec,
         'ndre_dec': ndre_dec,
         'gci_dec': gci_dec,
-        'ndmi_dec': ndmi_dec
+        'ndmi_dec': ndmi_dec,
+        'gndvi_dec': gndvi_dec,
+        'savi_dec': savi_dec,
+        'tgi_dec': tgi_dec
     }
 
     block_size = 1024
