@@ -11,7 +11,7 @@ def stratified_sample(group: pd.DataFrame):
 
 if __name__ == '__main__':
     df = pd.read_csv('../csvs/rawCrop.csv')
-    n_samples_crop = 9000
-    n_samples_other = 30000
+    n_samples_crop = 12000
+    n_samples_other = 40000
     df_sampled = df.groupby('Crops', group_keys=False).apply(stratified_sample)
     df_sampled.to_csv('../csvs/rawCropSampled.csv', index=False)
