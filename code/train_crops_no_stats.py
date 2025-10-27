@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import xgboost as xgb
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
@@ -37,14 +38,18 @@ search = RandomizedSearchCV(
     random_state=42,
     n_jobs=1
 )
-# model.fit(x_train, y_train)
-search.fit(x_train, y_train)
-print(search.best_params_)
-print(search.best_score_)
-best_model = search.best_estimator_
+model.fit(x_train, y_train)
+# search.fit(x_train, y_train)
+# print(search.best_params_)
+# print(search.best_score_)
+# best_model = search.best_estimator_
 # y_cv_pred = model.predict(x_cv)
-y_cv_pred = best_model.predict(x_cv)
+proba = model.predict_proba(x_cv)
+crop_mask = np.max(proba[:, :-1], axis=1) < 0.5
+preds = np.argmax(proba, axis=1)
+preds[crop_mask] = 13
+# y_cv_pred = best_model.predict(x_cv)
 class_names = ['Rice', 'Cassava', 'Pineapple', 'Rubber', 'Oil palm',
                'Durian', 'Rambutan', 'Coconut', 'Mango', 'Longan',
                'Jackfruit', 'Mangosteen', 'Longkong', 'Others']
-print(classification_report(y_cv, y_cv_pred, target_names=class_names))
+print(classification_report(y_cv, preds, target_names=class_names))
