@@ -3,7 +3,7 @@ import xgboost as xgb
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-df = pd.read_csv('../csvs/cleanedCropWithTGI.csv')
+df = pd.read_csv('../csvs/cleanedCropAllFeatures.csv')
 x = df.drop(columns=['Label', 'Crops'])
 y = df['Crops']
 x_train, x_temp, y_train, y_temp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
