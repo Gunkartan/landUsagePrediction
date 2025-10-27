@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import xgboost as xgb
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, f1_score
 
 df = pd.read_csv('../csvs/cleanedCropAllFeatures.csv')
 x = df.drop(columns=['Label', 'Crops'])
@@ -45,11 +45,22 @@ model.fit(x_train, y_train)
 # best_model = search.best_estimator_
 # y_cv_pred = model.predict(x_cv)
 proba = model.predict_proba(x_cv)
-crop_mask = np.max(proba[:, :-1], axis=1) < 0.5
-preds = np.argmax(proba, axis=1)
-preds[crop_mask] = 13
+best_score = 0
+
+for t in np.linspace(0.1, 0.9, 9):
+    crop_mask = np.max(proba[:, :-1], axis=1) < t
+    preds = np.argmax(proba, axis=1)
+    preds[crop_mask] = 13
+    f = f1_score(y_cv, preds, average='macro')
+
+    if f > best_score:
+        best_t = t
+        best_score = f
+        best_preds = preds
+
+print(f'{t} | {f:.3f}')
 # y_cv_pred = best_model.predict(x_cv)
 class_names = ['Rice', 'Cassava', 'Pineapple', 'Rubber', 'Oil palm',
                'Durian', 'Rambutan', 'Coconut', 'Mango', 'Longan',
                'Jackfruit', 'Mangosteen', 'Longkong', 'Others']
-print(classification_report(y_cv, preds, target_names=class_names))
+print(classification_report(y_cv, best_preds, target_names=class_names))
