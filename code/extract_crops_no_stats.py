@@ -122,6 +122,8 @@ if __name__ == '__main__':
     arvi_oct = (nir_oct - (2 * red_oct - blue_oct)) / (nir_oct + (2 * red_oct - blue_oct)) #Atmospherically resistant vegetation index.
     nbr_oct = (nir_oct - swir_long_oct) / (nir_oct + swir_long_oct) #Normalized burn ratio.
     vari_oct = (green_oct - red_oct) / (green_oct + red_oct - blue_oct) #Visible atmospherically resistant index.
+    ci_oct = nir_oct / re_early_oct - 1 #Chlorophyll index.
+    bsi_oct = ((swir_oct + red_oct) - (nir_oct + blue_oct)) / ((swir_oct + red_oct) + (nir_oct + blue_oct)) #Bare soil index.
 
     blue_nov = tile_nov.read(1).astype('float32')
     green_nov = tile_nov.read(2).astype('float32')
@@ -146,6 +148,8 @@ if __name__ == '__main__':
     arvi_nov = (nir_nov - (2 * red_nov - blue_nov)) / (nir_nov + (2 * red_nov - blue_nov))
     nbr_nov = (nir_nov - swir_long_nov) / (nir_nov + swir_long_nov)
     vari_nov = (green_nov - red_nov) / (green_nov + red_nov - blue_nov)
+    ci_nov = nir_nov / re_early_nov - 1
+    bsi_nov = ((swir_nov + red_nov) - (nir_nov + blue_nov)) / ((swir_nov + red_nov) + (nir_nov + blue_nov))
 
     blue_dec = tile_dec.read(1).astype('float32')
     green_dec = tile_dec.read(2).astype('float32')
@@ -170,6 +174,8 @@ if __name__ == '__main__':
     arvi_dec = (nir_dec - (2 * red_dec - blue_dec)) / (nir_dec + (2 * red_dec - blue_dec))
     nbr_dec = (nir_dec - swir_long_dec) / (nir_dec + swir_long_dec)
     vari_dec = (green_dec - red_dec) / (green_dec + red_dec - blue_dec)
+    ci_dec = nir_dec / re_early_dec - 1
+    bsi_dec = ((swir_dec + red_dec) - (nir_dec + blue_dec)) / ((swir_dec + red_dec) + (nir_dec + blue_dec))
 
     indices_dict = {
         'ndvi_oct': ndvi_oct,
@@ -186,6 +192,8 @@ if __name__ == '__main__':
         'arvi_oct': arvi_oct,
         'nbr_oct': nbr_oct,
         'vari_oct': vari_oct,
+        'ci_oct': ci_oct,
+        'bsi_oct': bsi_oct,
         'ndvi_nov': ndvi_nov,
         'ndwi_nov': ndwi_nov,
         'evi_nov': evi_nov,
@@ -200,6 +208,8 @@ if __name__ == '__main__':
         'arvi_nov': arvi_nov,
         'nbr_nov': nbr_nov,
         'vari_nov': vari_nov,
+        'ci_nov': ci_nov,
+        'bsi_nov': bsi_nov,
         'ndvi_dec': ndvi_dec,
         'ndwi_dec': ndwi_dec,
         'evi_dec': evi_dec,
@@ -213,7 +223,9 @@ if __name__ == '__main__':
         'tgi_dec': tgi_dec,
         'arvi_dec': arvi_dec,
         'nbr_dec': nbr_dec,
-        'vari_dec': vari_dec
+        'vari_dec': vari_dec,
+        'ci_dec': ci_dec,
+        'bsi_dec': bsi_dec
     }
 
     block_size = 1024
