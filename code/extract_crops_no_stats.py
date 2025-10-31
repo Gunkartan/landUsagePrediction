@@ -87,10 +87,10 @@ def create_csv(features: list[list[any]], cols: list[str], first_write: bool):
         df.to_csv('../csvs/rawCrop.csv', mode='a', header=False, index=False, float_format='%.3f')
 
 if __name__ == '__main__':
-    label_file = '../rasterized/2018.tif'
-    sentinel_file_oct = '../raw/47PQQ_2018-10-31.tif'
-    sentinel_file_nov = '../raw/47PQQ_2018-11-30.tif'
-    sentinel_file_dec = '../raw/47PQQ_2018-12-31.tif'
+    label_file = '../rasterized/2020.tif'
+    sentinel_file_oct = '../raw/47PQQ_2020-10-31.tif'
+    sentinel_file_nov = '../raw/47PQQ_2020-11-30.tif'
+    sentinel_file_dec = '../raw/47PQQ_2020-12-31.tif'
 
     label = rasterio.open(label_file)
     tile_oct = rasterio.open(sentinel_file_oct)
@@ -110,18 +110,21 @@ if __name__ == '__main__':
 
     ndvi_oct = (nir_oct - red_oct) / (nir_oct + red_oct)
     ndwi_oct = (green_oct - nir_oct) / (green_oct + nir_oct)
-    evi_oct = 2.5 * ((nir_oct - red_oct) / (nir_oct + 6 * red_oct - 7.5 * blue_oct + 1))
+    evi_oct = 2.5 * (nir_oct - red_oct) / (nir_oct + 6 * red_oct - 7.5 * blue_oct + 1)
     ndbi_oct = (swir_oct - nir_oct) / (swir_oct + nir_oct)
     re_ndvi_oct = (nir_oct - re_early_oct) / (nir_oct + re_early_oct) #Red-edge NDVI.
+    ndre_oct = (nir_oct - re_mid_oct) / (nir_oct + re_mid_oct) #Normalized difference red-edge.
     gci_oct = nir_oct / green_oct - 1 #Green chlorophyll index.
     ndmi_oct = (nir_oct - swir_oct) / (nir_oct + swir_oct) #Normalized difference moisture index.
     gndvi_oct = (nir_oct - green_oct) / (nir_oct + green_oct) #Green normalized difference vegetation index.
     savi_oct = ((1 + 0.5) * (nir_oct - red_oct)) / (nir_oct + red_oct + 0.5) #Soil adjusted vegetation index.
     tgi_oct = -0.5 * (190 * (red_oct - green_oct) - 120 * (red_oct - blue_oct)) #Triangular greenness index.
+    arvi_oct = (nir_oct - (2 * red_oct - blue_oct)) / (nir_oct + (2 * red_oct - blue_oct)) #Atmospherically resistant vegetation index.
     nbr_oct = (nir_oct - swir_long_oct) / (nir_oct + swir_long_oct) #Normalized burn ratio.
     vari_oct = (green_oct - red_oct) / (green_oct + red_oct - blue_oct) #Visible atmospherically resistant index.
     ci_oct = nir_oct / re_early_oct - 1 #Chlorophyll index.
     bsi_oct = ((swir_oct + red_oct) - (nir_oct + blue_oct)) / ((swir_oct + red_oct) + (nir_oct + blue_oct)) #Bare soil index.
+    # evi_no_blue_oct = 2.5 * (nir_oct - red_oct) / (nir_oct + 2.4 * red_oct + 1)
 
     blue_nov = tile_nov.read(1).astype('float32')
     green_nov = tile_nov.read(2).astype('float32')
@@ -137,11 +140,13 @@ if __name__ == '__main__':
     evi_nov = 2.5 * ((nir_nov - red_nov) / (nir_nov + 6 * red_nov - 7.5 * blue_nov + 1))
     ndbi_nov = (swir_nov - nir_nov) / (swir_nov + nir_nov)
     re_ndvi_nov = (nir_nov - re_early_nov) / (nir_nov + re_early_nov)
+    ndre_nov = (nir_nov - re_mid_nov) / (nir_nov + re_mid_nov)
     gci_nov = nir_nov / green_nov - 1
     ndmi_nov = (nir_nov - swir_nov) / (nir_nov + swir_nov)
     gndvi_nov = (nir_nov - green_nov) / (nir_nov + green_nov)
     savi_nov = ((1 + 0.5) * (nir_nov - red_nov)) / (nir_nov + red_nov + 0.5)
     tgi_nov = -0.5 * (190 * (red_nov - green_nov) - 120 * (red_nov - blue_nov))
+    arvi_nov = (nir_nov - (2 * red_nov - blue_nov)) / (nir_nov + (2 * red_nov - blue_nov))
     nbr_nov = (nir_nov - swir_long_nov) / (nir_nov + swir_long_nov)
     vari_nov = (green_nov - red_nov) / (green_nov + red_nov - blue_nov)
     ci_nov = nir_nov / re_early_nov - 1
@@ -161,11 +166,13 @@ if __name__ == '__main__':
     evi_dec = 2.5 * ((nir_dec - red_dec) / (nir_dec + 6 * red_dec - 7.5 * blue_dec + 1))
     ndbi_dec = (swir_dec - nir_dec) / (swir_dec + nir_dec)
     re_ndvi_dec = (nir_dec - re_early_dec) / (nir_dec + re_early_dec)
+    ndre_dec = (nir_dec - re_mid_dec) / (nir_dec + re_mid_dec)
     gci_dec = nir_dec / green_dec - 1
     ndmi_dec = (nir_dec - swir_dec) / (nir_dec + swir_dec)
     gndvi_dec = (nir_dec - green_dec) / (nir_dec + green_dec)
     savi_dec = ((1 + 0.5) * (nir_dec - red_dec)) / (nir_dec + red_dec + 0.5)
     tgi_dec = -0.5 * (190 * (red_dec - green_dec) - 120 * (red_dec - blue_dec))
+    arvi_dec = (nir_dec - (2 * red_dec - blue_dec)) / (nir_dec + (2 * red_dec - blue_dec))
     nbr_dec = (nir_dec - swir_long_dec) / (nir_dec + swir_long_dec)
     vari_dec = (green_dec - red_dec) / (green_dec + red_dec - blue_dec)
     ci_dec = nir_dec / re_early_dec - 1
@@ -177,11 +184,13 @@ if __name__ == '__main__':
         'evi_oct': evi_oct,
         'ndbi_oct': ndbi_oct,
         're_ndvi_oct': re_ndvi_oct,
+        'ndre_oct': ndre_oct,
         'gci_oct': gci_oct,
         'ndmi_oct': ndmi_oct,
         'gndvi_oct': gndvi_oct,
         'savi_oct': savi_oct,
         'tgi_oct': tgi_oct,
+        'arvi_oct': arvi_oct,
         'nbr_oct': nbr_oct,
         'vari_oct': vari_oct,
         'ci_oct': ci_oct,
@@ -191,11 +200,13 @@ if __name__ == '__main__':
         'evi_nov': evi_nov,
         'ndbi_nov': ndbi_nov,
         're_ndvi_nov': re_ndvi_nov,
+        'ndre_nov': ndre_nov,
         'gci_nov': gci_nov,
         'ndmi_nov': ndmi_nov,
         'gndvi_nov': gndvi_nov,
         'savi_nov': savi_nov,
         'tgi_nov': tgi_nov,
+        'arvi_nov': arvi_nov,
         'nbr_nov': nbr_nov,
         'vari_nov': vari_nov,
         'ci_nov': ci_nov,
@@ -205,11 +216,13 @@ if __name__ == '__main__':
         'evi_dec': evi_dec,
         'ndbi_dec': ndbi_dec,
         're_ndvi_dec': re_ndvi_dec,
+        'ndre_dec': ndre_dec,
         'gci_dec': gci_dec,
         'ndmi_dec': ndmi_dec,
         'gndvi_dec': gndvi_dec,
         'savi_dec': savi_dec,
         'tgi_dec': tgi_dec,
+        'arvi_dec': arvi_dec,
         'nbr_dec': nbr_dec,
         'vari_dec': vari_dec,
         'ci_dec': ci_dec,
