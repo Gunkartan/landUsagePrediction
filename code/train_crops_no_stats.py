@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import xgboost as xgb
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import classification_report, f1_score
@@ -86,3 +87,7 @@ class_names = ['Rice', 'Cassava', 'Pineapple', 'Rubber', 'Oil palm',
                'Durian', 'Rambutan', 'Coconut', 'Mango', 'Longan',
                'Jackfruit', 'Mangosteen', 'Longkong', 'Others']
 print(classification_report(y_cv, best_preds, target_names=class_names))
+xgb.plot_importance(model, importance_type='gain')
+plt.title('Feature importance.')
+plt.tight_layout()
+plt.show()
