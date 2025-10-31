@@ -119,7 +119,6 @@ if __name__ == '__main__':
     gndvi_oct = (nir_oct - green_oct) / (nir_oct + green_oct) #Green normalized difference vegetation index.
     savi_oct = ((1 + 0.5) * (nir_oct - red_oct)) / (nir_oct + red_oct + 0.5) #Soil adjusted vegetation index.
     tgi_oct = -0.5 * (190 * (red_oct - green_oct) - 120 * (red_oct - blue_oct)) #Triangular greenness index.
-    arvi_oct = (nir_oct - (2 * red_oct - blue_oct)) / (nir_oct + (2 * red_oct - blue_oct)) #Atmospherically resistant vegetation index.
     nbr_oct = (nir_oct - swir_long_oct) / (nir_oct + swir_long_oct) #Normalized burn ratio.
     vari_oct = (green_oct - red_oct) / (green_oct + red_oct - blue_oct) #Visible atmospherically resistant index.
     ci_oct = nir_oct / re_early_oct - 1 #Chlorophyll index.
@@ -145,7 +144,6 @@ if __name__ == '__main__':
     gndvi_nov = (nir_nov - green_nov) / (nir_nov + green_nov)
     savi_nov = ((1 + 0.5) * (nir_nov - red_nov)) / (nir_nov + red_nov + 0.5)
     tgi_nov = -0.5 * (190 * (red_nov - green_nov) - 120 * (red_nov - blue_nov))
-    arvi_nov = (nir_nov - (2 * red_nov - blue_nov)) / (nir_nov + (2 * red_nov - blue_nov))
     nbr_nov = (nir_nov - swir_long_nov) / (nir_nov + swir_long_nov)
     vari_nov = (green_nov - red_nov) / (green_nov + red_nov - blue_nov)
     ci_nov = nir_nov / re_early_nov - 1
@@ -171,7 +169,6 @@ if __name__ == '__main__':
     gndvi_dec = (nir_dec - green_dec) / (nir_dec + green_dec)
     savi_dec = ((1 + 0.5) * (nir_dec - red_dec)) / (nir_dec + red_dec + 0.5)
     tgi_dec = -0.5 * (190 * (red_dec - green_dec) - 120 * (red_dec - blue_dec))
-    arvi_dec = (nir_dec - (2 * red_dec - blue_dec)) / (nir_dec + (2 * red_dec - blue_dec))
     nbr_dec = (nir_dec - swir_long_dec) / (nir_dec + swir_long_dec)
     vari_dec = (green_dec - red_dec) / (green_dec + red_dec - blue_dec)
     ci_dec = nir_dec / re_early_dec - 1
@@ -189,7 +186,6 @@ if __name__ == '__main__':
         'gndvi_oct': gndvi_oct,
         'savi_oct': savi_oct,
         'tgi_oct': tgi_oct,
-        'arvi_oct': arvi_oct,
         'nbr_oct': nbr_oct,
         'vari_oct': vari_oct,
         'ci_oct': ci_oct,
@@ -205,7 +201,6 @@ if __name__ == '__main__':
         'gndvi_nov': gndvi_nov,
         'savi_nov': savi_nov,
         'tgi_nov': tgi_nov,
-        'arvi_nov': arvi_nov,
         'nbr_nov': nbr_nov,
         'vari_nov': vari_nov,
         'ci_nov': ci_nov,
@@ -221,7 +216,6 @@ if __name__ == '__main__':
         'gndvi_dec': gndvi_dec,
         'savi_dec': savi_dec,
         'tgi_dec': tgi_dec,
-        'arvi_dec': arvi_dec,
         'nbr_dec': nbr_dec,
         'vari_dec': vari_dec,
         'ci_dec': ci_dec,

@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import classification_report, f1_score
 from sklearn.utils.class_weight import compute_class_weight
 
-df = pd.read_csv('../csvs/cleanedCropWithBSI.csv')
+df = pd.read_csv('../csvs/cleanedCropWithoutARVI.csv')
 x = df.drop(columns=['Label', 'Crops'])
 y = df['Crops']
 x_train, x_temp, y_train, y_temp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
@@ -67,7 +67,7 @@ for c in range(14):
             best_f, best_thr = f, t
 
     best_t.append(best_thr)
-    print(f'{c} | {best_thr} | {best_f:.3f}')
+    # print(f'{c} | {best_thr} | {best_f:.3f}')
 
 best_preds = np.full_like(y_true, 13)
 passed = np.zeros_like(proba, dtype=bool)
