@@ -3,10 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import xgboost as xgb
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.metrics import classification_report, f1_score
+from sklearn.metrics import classification_report, f1_score, confusion_matrix
 from sklearn.utils.class_weight import compute_class_weight
+import seaborn as sns
 
-df = pd.read_csv('../csvs/cleanedCropSecondYear.csv')
+df = pd.read_csv('../csvs/cleanedCropWithNarrowNDVI.csv')
 x = df.drop(columns=['Label', 'Crops'])
 y = df['Crops']
 x_train, x_temp, y_train, y_temp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
@@ -89,5 +90,14 @@ class_names = ['Rice', 'Cassava', 'Pineapple', 'Rubber', 'Oil palm',
 print(classification_report(y_cv, best_preds, target_names=class_names))
 xgb.plot_importance(model, importance_type='gain')
 plt.title('Feature importance.')
+plt.tight_layout()
+plt.show()
+cm = confusion_matrix(y_cv, best_preds)
+cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+plt.figure(figsize=(10, 8))
+sns.heatmap(cm, annot=True, fmt='.2f', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
+plt.title('Confusion matrix.')
+plt.xlabel('Predicted labels.')
+plt.ylabel('True labels.')
 plt.tight_layout()
 plt.show()
