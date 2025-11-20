@@ -120,6 +120,8 @@ if __name__ == '__main__':
     mndwi_oct = (green_oct - swir_oct) / (green_oct + swir_oct)
     ndmi_oct = (nir_oct - swir_oct) / (nir_oct + swir_oct)
     ndii_oct = (nir_oct - swir_long_oct) / (nir_oct + swir_long_oct)
+    msi_oct = swir_oct / nir_oct
+    gvmi_oct = ((nir_oct + 0.1) - (swir_long_oct + 0.02)) / ((nir_oct + 0.1) + (swir_long_oct + 0.02))
 
     blue_nov = tile_nov.read(1).astype('float32')
     green_nov = tile_nov.read(2).astype('float32')
@@ -142,6 +144,8 @@ if __name__ == '__main__':
     mndwi_nov = (green_nov - swir_nov) / (green_nov + swir_nov)
     ndmi_nov = (nir_nov - swir_nov) / (nir_nov + swir_nov)
     ndii_nov = (nir_nov - swir_long_nov) / (nir_nov + swir_long_nov)
+    msi_nov = swir_nov / nir_nov
+    gvmi_nov = ((nir_nov + 0.1) - (swir_long_nov + 0.02)) / ((nir_nov + 0.1) + (swir_long_nov + 0.02))
 
     blue_dec = tile_dec.read(1).astype('float32')
     green_dec = tile_dec.read(2).astype('float32')
@@ -164,6 +168,8 @@ if __name__ == '__main__':
     mndwi_dec = (green_dec - swir_dec) / (green_dec + swir_dec)
     ndmi_dec = (nir_dec - swir_dec) / (nir_dec + swir_dec)
     ndii_dec = (nir_dec - swir_long_dec) / (nir_dec + swir_long_dec)
+    msi_dec = swir_dec / nir_dec
+    gvmi_dec = ((nir_dec + 0.1) - (swir_long_dec + 0.02)) / ((nir_dec + 0.1) + (swir_long_dec + 0.02))
 
     indices_dict = {
         'ndvi_oct': ndvi_oct,
@@ -177,6 +183,8 @@ if __name__ == '__main__':
         'mndwi_oct': mndwi_oct,
         'ndmi_oct': ndmi_oct,
         'ndii_oct': ndii_oct,
+        'msi_oct': msi_oct,
+        'gvmi_oct': gvmi_oct,
         'ndvi_nov': ndvi_nov,
         'ndwi_nov': ndwi_nov,
         'evi_nov': evi_nov,
@@ -188,6 +196,8 @@ if __name__ == '__main__':
         'mndwi_nov': mndwi_nov,
         'ndmi_nov': ndmi_nov,
         'ndii_nov': ndii_nov,
+        'msi_nov': msi_nov,
+        'gvmi_nov': gvmi_nov,
         'ndvi_dec': ndvi_dec,
         'ndwi_dec': ndwi_dec,
         'evi_dec': evi_dec,
@@ -198,7 +208,9 @@ if __name__ == '__main__':
         'nmdi_dec': nmdi_dec,
         'mndwi_dec': mndwi_dec,
         'ndmi_dec': ndmi_dec,
-        'ndii_dec': ndii_dec
+        'ndii_dec': ndii_dec,
+        'msi_dec': msi_dec,
+        'gvmi_dec': gvmi_dec
     }
 
     block_size = 1024
