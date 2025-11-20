@@ -7,7 +7,7 @@ from sklearn.metrics import classification_report, f1_score, confusion_matrix
 from sklearn.utils.class_weight import compute_class_weight
 import seaborn as sns
 
-df = pd.read_csv('../csvs/cleanedCropWithBSI.csv')
+df = pd.read_csv('../csvs/cleanedCropWithMNDWI.csv')
 x = df.drop(columns=['Label', 'Crops'])
 y = df['Crops']
 x_train, x_temp, y_train, y_temp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
