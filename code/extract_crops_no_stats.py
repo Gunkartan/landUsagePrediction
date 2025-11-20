@@ -122,6 +122,10 @@ if __name__ == '__main__':
     ndii_oct = (nir_oct - swir_long_oct) / (nir_oct + swir_long_oct)
     msi_oct = swir_oct / nir_oct
     gvmi_oct = ((nir_oct + 0.1) - (swir_long_oct + 0.02)) / ((nir_oct + 0.1) + (swir_long_oct + 0.02))
+    gndvi_oct = (nir_oct - green_oct) / (nir_oct + green_oct)
+    rendvi_oct = (nir_oct - re_early_oct) / (nir_oct + re_early_oct)
+    evi_no_blue_oct = 2.5 * (nir_oct - red_oct) / (nir_oct + 2.4 * red_oct + 1)
+    rvi_oct = nir_oct / red_oct
 
     blue_nov = tile_nov.read(1).astype('float32')
     green_nov = tile_nov.read(2).astype('float32')
@@ -146,6 +150,10 @@ if __name__ == '__main__':
     ndii_nov = (nir_nov - swir_long_nov) / (nir_nov + swir_long_nov)
     msi_nov = swir_nov / nir_nov
     gvmi_nov = ((nir_nov + 0.1) - (swir_long_nov + 0.02)) / ((nir_nov + 0.1) + (swir_long_nov + 0.02))
+    gndvi_nov = (nir_nov - green_nov) / (nir_nov + green_nov)
+    rendvi_nov = (nir_nov - re_early_nov) / (nir_nov + re_early_nov)
+    evi_no_blue_nov = 2.5 * (nir_nov - red_nov) / (nir_nov + 2.4 * red_nov + 1)
+    rvi_nov = nir_nov / red_nov
 
     blue_dec = tile_dec.read(1).astype('float32')
     green_dec = tile_dec.read(2).astype('float32')
@@ -170,6 +178,10 @@ if __name__ == '__main__':
     ndii_dec = (nir_dec - swir_long_dec) / (nir_dec + swir_long_dec)
     msi_dec = swir_dec / nir_dec
     gvmi_dec = ((nir_dec + 0.1) - (swir_long_dec + 0.02)) / ((nir_dec + 0.1) + (swir_long_dec + 0.02))
+    gndvi_dec = (nir_dec - green_dec) / (nir_dec + green_dec)
+    rendvi_dec = (nir_dec - re_early_dec) / (nir_dec + re_early_dec)
+    evi_no_blue_dec = 2.5 * (nir_dec - red_dec) / (nir_dec + 2.4 * red_dec + 1)
+    rvi_dec = nir_dec / red_dec
 
     indices_dict = {
         'ndvi_oct': ndvi_oct,
@@ -185,6 +197,10 @@ if __name__ == '__main__':
         'ndii_oct': ndii_oct,
         'msi_oct': msi_oct,
         'gvmi_oct': gvmi_oct,
+        'gndvi_oct': gndvi_oct,
+        'rendvi_oct': rendvi_oct,
+        'evi_no_blue_oct': evi_no_blue_oct,
+        'rvi_oct': rvi_oct,
         'ndvi_nov': ndvi_nov,
         'ndwi_nov': ndwi_nov,
         'evi_nov': evi_nov,
@@ -198,6 +214,10 @@ if __name__ == '__main__':
         'ndii_nov': ndii_nov,
         'msi_nov': msi_nov,
         'gvmi_nov': gvmi_nov,
+        'gndvi_nov': gndvi_nov,
+        'rendvi_nov': rendvi_nov,
+        'evi_no_blue_nov': evi_no_blue_nov,
+        'rvi_nov': rvi_nov,
         'ndvi_dec': ndvi_dec,
         'ndwi_dec': ndwi_dec,
         'evi_dec': evi_dec,
@@ -210,7 +230,11 @@ if __name__ == '__main__':
         'ndmi_dec': ndmi_dec,
         'ndii_dec': ndii_dec,
         'msi_dec': msi_dec,
-        'gvmi_dec': gvmi_dec
+        'gvmi_dec': gvmi_dec,
+        'gndvi_dec': gndvi_dec,
+        'rendvi_dec': rendvi_dec,
+        'evi_no_blue_dec': evi_no_blue_dec,
+        'rvi_dec': rvi_dec
     }
 
     block_size = 1024
