@@ -13,8 +13,10 @@ y = df['Crops']
 x_train, x_temp, y_train, y_temp = train_test_split(x, y, test_size=0.4, random_state=42, stratify=y)
 x_cv, x_test, y_cv, y_test = train_test_split(x_temp, y_temp, test_size=0.5, random_state=42, stratify=y_temp)
 classes = np.unique(y_train)
-class_weights = compute_class_weight('balanced', classes=classes, y=y_train)
-weight_map = dict(zip(classes, class_weights))
+raw_weights = compute_class_weight('balanced', classes=classes, y=y_train)
+scaled_weights = np.log1p(raw_weights)
+scaled_weights = scaled_weights / scaled_weights.min()
+weight_map = dict(zip(classes, scaled_weights))
 sample_weights = np.array([weight_map[c] for c in y_train])
 param_grid = {
     'n_estimators': [300, 500, 700],
