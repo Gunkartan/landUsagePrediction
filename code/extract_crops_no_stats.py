@@ -130,6 +130,10 @@ if __name__ == '__main__':
     b_oct = 0.3037 * blue_oct + 0.2793 * green_oct + 0.4743 * red_oct + 0.5585 * nir_oct + 0.5082 * swir_oct + 0.1863 * swir_long_oct
     vbi_oct = (blue_oct + green_oct + red_oct) / 3
     swirbi_oct = (swir_oct + swir_long_oct) / 2
+    rgr_oct = red_oct / green_oct
+    rnr_oct = red_oct / nir_oct
+    grer_oct = green_oct / re_early_oct
+    snr_oct = swir_oct / nir_oct
 
     blue_nov = tile_nov.read(1).astype('float32')
     green_nov = tile_nov.read(2).astype('float32')
@@ -162,6 +166,10 @@ if __name__ == '__main__':
     b_nov = 0.3037 * blue_nov + 0.2793 * green_nov + 0.4743 * red_nov + 0.5585 * nir_nov + 0.5082 * swir_nov + 0.1863 * swir_long_nov
     vbi_nov = (blue_nov + green_nov + red_nov) / 3
     swirbi_nov = (swir_nov + swir_long_nov) / 2
+    rgr_nov = red_nov / green_nov
+    rnr_nov = red_nov / nir_nov
+    grer_nov = green_nov / re_early_nov
+    snr_nov = swir_nov / nir_nov
 
     blue_dec = tile_dec.read(1).astype('float32')
     green_dec = tile_dec.read(2).astype('float32')
@@ -194,6 +202,10 @@ if __name__ == '__main__':
     b_dec = 0.3037 * blue_dec + 0.2793 * green_dec + 0.4743 * red_dec + 0.5585 * nir_dec + 0.5082 * swir_dec + 0.1863 * swir_long_dec
     vbi_dec = (blue_dec + green_dec + red_dec) / 3
     swirbi_dec = (swir_dec + swir_long_dec) / 2
+    rgr_dec = red_dec / green_dec
+    rnr_dec = red_dec / nir_dec
+    grer_dec = green_dec / re_early_dec
+    snr_dec = swir_dec / nir_dec
 
     indices_dict = {
         'ndvi_oct': ndvi_oct,
@@ -217,6 +229,10 @@ if __name__ == '__main__':
         'b_oct': b_oct,
         'vbi_oct': vbi_oct,
         'swirbi_oct': swirbi_oct,
+        'rgr_oct': rgr_oct,
+        'rnr_oct': rnr_oct,
+        'grer_oct': grer_oct,
+        'snr_oct': snr_oct,
         'ndvi_nov': ndvi_nov,
         'ndwi_nov': ndwi_nov,
         'evi_nov': evi_nov,
@@ -238,6 +254,10 @@ if __name__ == '__main__':
         'b_nov': b_nov,
         'vbi_nov': vbi_nov,
         'swirbi_nov': swirbi_nov,
+        'rgr_nov': rgr_nov,
+        'rnr_nov': rnr_nov,
+        'grer_nov': grer_nov,
+        'snr_nov': snr_nov,
         'ndvi_dec': ndvi_dec,
         'ndwi_dec': ndwi_dec,
         'evi_dec': evi_dec,
@@ -258,7 +278,11 @@ if __name__ == '__main__':
         'sbi_dec': sbi_dec,
         'b_dec': b_dec,
         'vbi_dec': vbi_dec,
-        'swirbi_dec': swirbi_dec
+        'swirbi_dec': swirbi_dec,
+        'rgr_dec': rgr_dec,
+        'rnr_dec': rnr_dec,
+        'grer_dec': grer_dec,
+        'snr_dec': snr_dec
     }
 
     block_size = 1024
