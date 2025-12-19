@@ -18,13 +18,13 @@ import pandas as pd
 from labelExtractor import extract_overlap
 from scipy.ndimage import binary_erosion
 
-# def apply_buffer(label_raster, pixel_size=10):
-#     buffer_pixel = int(30 / pixel_size)
-#     mask = label_raster != 0
-#     structure = np.ones((3, 3))
-#     eroded = binary_erosion(mask, structure=structure, iterations=buffer_pixel)
+def apply_buffer(label_raster, pixel_size=10):
+    buffer_pixel = int(30 / pixel_size)
+    mask = label_raster != 0
+    structure = np.ones((3, 3))
+    eroded = binary_erosion(mask, structure=structure, iterations=buffer_pixel)
 
-#     return np.where(eroded, label_raster, 0)
+    return np.where(eroded, label_raster, 0)
 
 def extract_raw_vals(aligned_overlap: np.ndarray, indices_dict: dict):
     crop_classes = {
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     tile_nov = rasterio.open(sentinel_file_nov)
     tile_dec = rasterio.open(sentinel_file_dec)
     tile_id = os.path.basename(sentinel_file_oct).split('_')[0]
-    # aligned_overlap = apply_buffer(extract_overlap(label, tile_oct, tile_id))
+    aligned_overlap = apply_buffer(extract_overlap(label, tile_oct, tile_id))
     aligned_overlap = extract_overlap(label, tile_oct, tile_id)
 
     blue_oct = tile_oct.read(1).astype('float32')
