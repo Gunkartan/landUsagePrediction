@@ -32,7 +32,16 @@ model = xgb.XGBClassifier(
     eval_metric='mlogloss',
     random_state=42,
     tree_method='hist',
-    n_jobs=-1
+    n_jobs=-1,
+    n_estimators=800,
+    max_depth=10,
+    learning_rate=0.1,
+    subsample=0.6,
+    colsample_bytree=0.8,
+    min_child_weight=3,
+    gamma=0.5,
+    reg_alpha=0,
+    reg_lambda=1
 )
 random_search = RandomizedSearchCV(
     estimator=model,
@@ -44,12 +53,12 @@ random_search = RandomizedSearchCV(
     random_state=42,
     n_jobs=-1
 )
-# model.fit(x_train, y_train)
-random_search.fit(x_train, y_train)
-best_model = random_search.best_estimator_
-print(random_search.best_params_)
-# y_cv_pred = model.predict(x_cv)
-y_cv_pred = best_model.predict(x_cv)
+model.fit(x_train, y_train)
+# random_search.fit(x_train, y_train)
+# best_model = random_search.best_estimator_
+# print(random_search.best_params_)
+y_cv_pred = model.predict(x_cv)
+# y_cv_pred = best_model.predict(x_cv)
 class_names = ['Rice', 'Cassava', 'Pineapple', 'Rubber', 'Oil palm',
                'Durian', 'Rambutan', 'Coconut', 'Mango', 'Longan',
                'Jackfruit', 'Mangosteen', 'Longkong', 'Reservoir', 'Others']
@@ -62,7 +71,8 @@ plt.xlabel('Predicted')
 plt.ylabel('Actual')
 plt.title('Confusion matrix')
 plt.show()
-importances = best_model.feature_importances_
+importances = model.feature_importances_
+# importances = best_model.feature_importances_
 feature_names = (x.columns if isinstance(x, pd.DataFrame) else [f'Feature {i}' for i in range(x.shape[1])])
 fi = pd.DataFrame({
     'Feature': feature_names,
