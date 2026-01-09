@@ -113,6 +113,7 @@ for p in y_cv_proba:
 y_cv_pred_tuned = np.array(y_cv_pred_tuned)
 # print(classification_report(y_cv, y_cv_pred, target_names=class_names))
 print(classification_report(y_cv, y_cv_pred_tuned, target_names=class_names))
+print(f1_score(y_cv, y_cv_pred_tuned, average='weighted'))
 # cm = confusion_matrix(y_cv, y_cv_pred)
 cm = confusion_matrix(y_cv, y_cv_pred_tuned)
 cm_normalized = cm / cm.sum(axis=1, keepdims=True)
