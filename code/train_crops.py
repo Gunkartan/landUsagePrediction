@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import xgboost as xgb
 from sklearn.model_selection import train_test_split, RandomizedSearchCV
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, f1_score
 from sklearn.preprocessing import LabelEncoder
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -57,14 +57,65 @@ model.fit(x_train, y_train)
 # random_search.fit(x_train, y_train)
 # best_model = random_search.best_estimator_
 # print(random_search.best_params_)
-y_cv_pred = model.predict(x_cv)
+# y_cv_pred = model.predict(x_cv)
 # y_cv_pred = best_model.predict(x_cv)
+y_cv_proba = model.predict_proba(x_cv)
+class_thresholds = np.zeros(num_classes)
+threshold_candidates = np.arange(0.1, 0.91, 0.05)
+
+for cls in range(num_classes):
+    best_f = 0
+    best_t = 0
+
+    for t in threshold_candidates:
+        y_pred = []
+
+        for i in range(len(y_cv_proba)):
+            p = y_cv_proba[i]
+
+            if p[cls] >= t:
+                y_pred.append(cls)
+
+            else:
+                y_pred.append(np.argmax(p))
+
+        y_pred = np.array(y_pred)
+        f = f1_score(y_cv, y_pred, average='weighted')
+
+        if f > best_f:
+            best_f = f
+            best_t = t
+
+    class_thresholds[cls] = best_t
+
 class_names = ['Rice', 'Cassava', 'Pineapple', 'Rubber', 'Oil palm',
                'Durian', 'Rambutan', 'Coconut', 'Mango', 'Longan',
                'Jackfruit', 'Mangosteen', 'Longkong', 'Reservoir', 'Others']
-print(classification_report(y_cv, y_cv_pred, target_names=class_names))
-cm = confusion_matrix(y_cv, y_cv_pred)
-cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+for i, t in enumerate(class_thresholds):
+    print(f'{class_names[i]}, {t:.2f}.')
+
+y_cv_pred_tuned = []
+
+for p in y_cv_proba:
+    assigned = False
+
+    for cls in range(num_classes):
+        if p[cls] >= class_thresholds[cls]:
+            y_cv_pred_tuned.append(cls)
+            assigned = True
+
+            break
+
+    if not assigned:
+        y_cv_pred_tuned.append(np.argmax(p))
+
+y_cv_pred_tuned = np.array(y_cv_pred_tuned)
+# print(classification_report(y_cv, y_cv_pred, target_names=class_names))
+print(classification_report(y_cv, y_cv_pred_tuned, target_names=class_names))
+# cm = confusion_matrix(y_cv, y_cv_pred)
+cm = confusion_matrix(y_cv, y_cv_pred_tuned)
+cm_normalized = cm / cm.sum(axis=1, keepdims=True)
 plt.figure(figsize=(8, 6))
 sns.heatmap(cm_normalized, annot=True, fmt='.3f', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
 plt.xlabel('Predicted')
