@@ -7,6 +7,7 @@ from sklearn.preprocessing import LabelEncoder
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.utils.class_weight import compute_class_weight
+import optuna
 
 df = pd.read_csv('../csvs/preprocessed.csv')
 x = df.drop(columns=['Unnamed: 0', 'label'])
@@ -19,6 +20,7 @@ x_cv, x_test, y_cv, y_test = train_test_split(x_temp, y_temp, test_size=0.5, ran
 class_weights = compute_class_weight(class_weight='balanced', classes=np.unique(y_train), y=y_train)
 class_weight_dict = dict(zip(np.unique(y_train), class_weights))
 sample_weights = np.array([class_weight_dict[y] for y in y_train])
+study = optuna.create_study(direction='maximize')
 param_dist = {
     'n_estimators': [200, 300, 500, 800],
     'max_depth': [4, 6, 8, 10],
@@ -57,13 +59,56 @@ random_search = RandomizedSearchCV(
     random_state=42,
     n_jobs=-1
 )
+
+for _ in range(15):
+    print('Start.')
+    trial = study.ask()
+    params = {
+        'objective': 'multi:softprob',
+        'num_class': num_classes,
+        'eval_metric': 'mlogloss',
+        'tree_method': 'hist',
+        'random_state': 42,
+        'n_jobs': -1,
+        'n_estimators': trial.suggest_int('n_estimators', 300, 1000),
+        'max_depth': trial.suggest_int('max_depth', 4, 10),
+        'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.15, log=True),
+        'subsample': trial.suggest_float('subsample', 0.6, 0.9),
+        'colsample_bytree': trial.suggest_float('colsample_bytree', 0.6, 0.9),
+        'min_child_weight': trial.suggest_int('min_child_weight', 1, 7),
+        'gamma': trial.suggest_float('gamma', 0.0, 0.5),
+        'reg_alpha': trial.suggest_float('reg_alpha', 0.0, 0.2),
+        'reg_lambda': trial.suggest_float('reg_lambda', 0.5, 3.0)
+    }
+    optuna_model = xgb.XGBClassifier(**params)
+    optuna_model.fit(x_train, y_train, eval_set=[(x_cv, y_cv)], verbose=False)
+    y_pred = optuna_model.predict(x_cv)
+    score = f1_score(y_cv, y_pred, average='weighted')
+    study.tell(trial, score)
+    print('Finish.')
+
+best_params = study.best_params
+best_score = study.best_value
+print(best_params)
+print(best_score)
+optuna_best_model = xgb.XGBClassifier(
+    **best_params,
+    objective='multi:softprob',
+    num_class=num_classes,
+    eval_metric='mlogloss',
+    tree_method='hist',
+    random_state=42,
+    n_jobs=-1
+)
 # model.fit(x_train, y_train)
-model.fit(x_train, y_train, sample_weight=sample_weights)
+# model.fit(x_train, y_train, sample_weight=sample_weights)
 # random_search.fit(x_train, y_train)
+optuna_best_model.fit(x_train, y_train)
 # best_model = random_search.best_estimator_
 # print(random_search.best_params_)
-y_cv_pred = model.predict(x_cv)
+# y_cv_pred = model.predict(x_cv)
 # y_cv_pred = best_model.predict(x_cv)
+y_cv_pred = optuna_best_model.predict(x_cv)
 # y_cv_proba = model.predict_proba(x_cv)
 # class_thresholds = np.zeros(num_classes)
 # threshold_candidates = np.arange(0.1, 0.91, 0.05)
@@ -100,8 +145,8 @@ class_names = ['Rice', 'Cassava', 'Pineapple', 'Rubber', 'Oil palm',
 # for i, t in enumerate(class_thresholds):
 #     print(f'{class_names[i]}, {t:.2f}.')
 
-for k, v in class_weight_dict.items():
-    print(f'{class_names[k]}, {v:.3f}.')
+# for k, v in class_weight_dict.items():
+#     print(f'{class_names[k]}, {v:.3f}.')
 
 # y_cv_pred_tuned = []
 
@@ -132,7 +177,7 @@ plt.xlabel('Predicted')
 plt.ylabel('Actual')
 plt.title('Confusion matrix')
 plt.show()
-importances = model.feature_importances_
+importances = optuna_best_model.feature_importances_
 # importances = best_model.feature_importances_
 feature_names = (x.columns if isinstance(x, pd.DataFrame) else [f'Feature {i}' for i in range(x.shape[1])])
 fi = pd.DataFrame({
