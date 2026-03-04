@@ -1,6 +1,7 @@
+import numpy as np
 import pandas as pd
 
-df = pd.read_csv('../csvs/kaimuk.csv')
-df = df.apply(pd.to_numeric, errors='coerce')
-df = df.dropna()
-df.to_csv('../csvs/preprocessed.csv', index=False)
+df = pd.read_csv('../csvs/raw.csv')
+df = df.replace([np.inf, -np.inf], np.nan)
+df = df.dropna().reset_index(drop=True)
+df.to_csv('../csvs/new.csv', index=False)

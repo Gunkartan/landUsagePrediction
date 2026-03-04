@@ -11,6 +11,7 @@
 #Jackfruit: 2416
 #Mangosteen: 2419
 #Longkong: 2420
+#Reservoir: 4201
 import os.path
 import rasterio
 import numpy as np
