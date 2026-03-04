@@ -59,26 +59,43 @@ def sample_pixels(mask, features, sample_size, buffer_pixels = 3):
 
 if __name__ == '__main__':
     label_file = '../rasterized/2018.tif'
+    label_file_2020 = '../rasterized/2020.tif'
     sentinel_file_oct = '../raw/47PQQ_2018-10-31.tif'
     sentinel_file_nov = '../raw/47PQQ_2018-11-30.tif'
     sentinel_file_dec = '../raw/47PQQ_2018-12-31.tif'
+    sentinel_file_oct_2020 = '../raw/47PQQ_2020-10-31.tif'
+    sentinel_file_nov_2020 = '../raw/47PQQ_2020-11-30.tif'
+    sentinel_file_dec_2020 = '../raw/47PQQ_2020-12-31.tif'
     label = rasterio.open(label_file)
+    label_2020 = rasterio.open(label_file_2020)
     tile_oct = rasterio.open(sentinel_file_oct)
     tile_nov = rasterio.open(sentinel_file_nov)
     tile_dec = rasterio.open(sentinel_file_dec)
+    tile_oct_2020 = rasterio.open(sentinel_file_oct_2020)
+    tile_nov_2020 = rasterio.open(sentinel_file_nov_2020)
+    tile_dec_2020 = rasterio.open(sentinel_file_dec_2020)
     tile_id = os.path.basename(sentinel_file_oct).split('_')[0]
     labels = extract_overlap(label, tile_oct, tile_id)
+    labels_2020 = extract_overlap(label_2020, tile_oct_2020, tile_id)
     ndvi_oct, evi_oct, ndwi_oct, mtci_oct, swir_oct, savi_oct, ndti_oct, bsi_oct = compute_indices(tile_oct)
     ndvi_nov, evi_nov, ndwi_nov, mtci_nov, swir_nov, savi_nov, ndti_nov, bsi_nov = compute_indices(tile_nov)
     ndvi_dec, evi_dec, ndwi_dec, mtci_dec, swir_dec, savi_dec, ndti_dec, bsi_dec = compute_indices(tile_dec)
+    ndvi_oct_2020, evi_oct_2020, ndwi_oct_2020, mtci_oct_2020, swir_oct_2020, savi_oct_2020, ndti_oct_2020, bsi_oct_2020 = compute_indices(tile_oct_2020)
+    ndvi_nov_2020, evi_nov_2020, ndwi_nov_2020, mtci_nov_2020, swir_nov_2020, savi_nov_2020, ndti_nov_2020, bsi_nov_2020 = compute_indices(tile_nov_2020)
+    ndvi_dec_2020, evi_dec_2020, ndwi_dec_2020, mtci_dec_2020, swir_dec_2020, savi_dec_2020, ndti_dec_2020, bsi_dec_2020 = compute_indices(tile_dec_2020)
     features = [
         ndvi_oct, evi_oct, ndwi_oct, mtci_oct, swir_oct, savi_oct, ndti_oct, bsi_oct,
         ndvi_nov, evi_nov, ndwi_nov, mtci_nov, swir_nov, savi_nov, ndti_nov, bsi_nov,
         ndvi_dec, evi_dec, ndwi_dec, mtci_dec, swir_dec, savi_dec, ndti_dec, bsi_dec
     ]
+    features_2020 = [
+        ndvi_oct_2020, evi_oct_2020, ndwi_oct_2020, mtci_oct_2020, swir_oct_2020, savi_oct_2020, ndti_oct_2020, bsi_oct_2020,
+        ndvi_nov_2020, evi_nov_2020, ndwi_nov_2020, mtci_nov_2020, swir_nov_2020, savi_nov_2020, ndti_nov_2020, bsi_nov_2020,
+        ndvi_dec_2020, evi_dec_2020, ndwi_dec_2020, mtci_dec_2020, swir_dec_2020, savi_dec_2020, ndti_dec_2020, bsi_dec_2020
+    ]
     samples_per_class = 200000
+    small_classes = [2404, 2405, 2413, 2416, 2419, 2420]
     dataset = []
-    unique_classes = np.unique(labels)
     class_map = {
         2101: 'Rice',
         2204: 'Cassava',
@@ -105,9 +122,25 @@ if __name__ == '__main__':
             row.append(class_id)
             dataset.append(row)
 
+    for class_id in small_classes:
+        mask = labels_2020 == class_id
+        rows = sample_pixels(mask, features_2020, samples_per_class)
+
+        for row in rows:
+            row.append(class_id)
+            dataset.append(row)
+
     known_mask = np.isin(labels, list(class_map.keys()))
     others_mask = ~known_mask
     rows = sample_pixels(others_mask, features, samples_per_class)
+
+    for row in rows:
+        row.append(others)
+        dataset.append(row)
+
+    known_mask_2020 = np.isin(labels_2020, list(class_map.keys()))
+    others_mask_2020 = ~known_mask_2020
+    rows = sample_pixels(others_mask_2020, features_2020, samples_per_class)
 
     for row in rows:
         row.append(others)
@@ -120,4 +153,4 @@ if __name__ == '__main__':
         'class'
     ]
     df = pd.DataFrame(dataset, columns=columns)
-    df.to_csv('../csvs/rawWithSoilIndices.csv', index=False)
+    df.to_csv('../csvs/rawWith2020.csv', index=False)
