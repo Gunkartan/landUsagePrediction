@@ -17,6 +17,7 @@ import rasterio
 import numpy as np
 import pandas as pd
 from labelExtractor import extract_overlap
+from scipy.ndimage import binary_erosion
 
 def compute_indices(tile):
     blue = tile.read(1).astype(float)
@@ -34,7 +35,8 @@ def compute_indices(tile):
 
     return ndvi, evi, ndwi, mtci, swir
 
-def sample_pixels(mask, features, sample_size):
+def sample_pixels(mask, features, sample_size, buffer_pixels = 3):
+    mask = binary_erosion(mask, iterations=buffer_pixels)
     idx = np.column_stack(np.where(mask))
 
     if len(idx) > sample_size:
@@ -92,14 +94,13 @@ if __name__ == '__main__':
     }
     others = 9999
 
-    for class_id in unique_classes:
-        if class_id in class_map:
-            mask = labels == class_id
-            rows = sample_pixels(mask, features, samples_per_class)
+    for class_id in class_map:
+        mask = labels == class_id
+        rows = sample_pixels(mask, features, samples_per_class)
 
-            for row in rows:
-                row.append(class_id)
-                dataset.append(row)
+        for row in rows:
+            row.append(class_id)
+            dataset.append(row)
 
     known_mask = np.isin(labels, list(class_map.keys()))
     others_mask = ~known_mask
@@ -116,4 +117,4 @@ if __name__ == '__main__':
         'class'
     ]
     df = pd.DataFrame(dataset, columns=columns)
-    df.to_csv('../csvs/raw.csv', index=False)
+    df.to_csv('../csvs/rawWithBuffer.csv', index=False)
