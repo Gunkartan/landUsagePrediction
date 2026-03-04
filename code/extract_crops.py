@@ -32,8 +32,11 @@ def compute_indices(tile):
     evi = 2.5 * (nir - red) / (nir + 6 * red - 7.5 * blue + 1)
     ndwi = (green - narrow_nir) / (green + narrow_nir)
     mtci = (re_mid - re_early) / (re_early - red)
+    savi = ((nir - red) / (nir + red + 0.5)) * 1.5
+    ndti = (swir - red) / (swir + red)
+    bsi = ((swir + red) - (nir + blue)) / ((swir + red) + (nir + blue))
 
-    return ndvi, evi, ndwi, mtci, swir
+    return ndvi, evi, ndwi, mtci, swir, savi, ndti, bsi
 
 def sample_pixels(mask, features, sample_size, buffer_pixels = 3):
     mask = binary_erosion(mask, iterations=buffer_pixels)
@@ -65,13 +68,13 @@ if __name__ == '__main__':
     tile_dec = rasterio.open(sentinel_file_dec)
     tile_id = os.path.basename(sentinel_file_oct).split('_')[0]
     labels = extract_overlap(label, tile_oct, tile_id)
-    ndvi_oct, evi_oct, ndwi_oct, mtci_oct, swir_oct = compute_indices(tile_oct)
-    ndvi_nov, evi_nov, ndwi_nov, mtci_nov, swir_nov = compute_indices(tile_nov)
-    ndvi_dec, evi_dec, ndwi_dec, mtci_dec, swir_dec = compute_indices(tile_dec)
+    ndvi_oct, evi_oct, ndwi_oct, mtci_oct, swir_oct, savi_oct, ndti_oct, bsi_oct = compute_indices(tile_oct)
+    ndvi_nov, evi_nov, ndwi_nov, mtci_nov, swir_nov, savi_nov, ndti_nov, bsi_nov = compute_indices(tile_nov)
+    ndvi_dec, evi_dec, ndwi_dec, mtci_dec, swir_dec, savi_dec, ndti_dec, bsi_dec = compute_indices(tile_dec)
     features = [
-        ndvi_oct, evi_oct, ndwi_oct, mtci_oct, swir_oct,
-        ndvi_nov, evi_nov, ndwi_nov, mtci_nov, swir_nov,
-        ndvi_dec, evi_dec, ndwi_dec, mtci_dec, swir_dec
+        ndvi_oct, evi_oct, ndwi_oct, mtci_oct, swir_oct, savi_oct, ndti_oct, bsi_oct,
+        ndvi_nov, evi_nov, ndwi_nov, mtci_nov, swir_nov, savi_nov, ndti_nov, bsi_nov,
+        ndvi_dec, evi_dec, ndwi_dec, mtci_dec, swir_dec, savi_dec, ndti_dec, bsi_dec
     ]
     samples_per_class = 200000
     dataset = []
@@ -111,10 +114,10 @@ if __name__ == '__main__':
         dataset.append(row)
 
     columns = [
-        'ndvi_oct', 'evi_oct', 'ndwi_oct', 'mtci_oct', 'swir_oct',
-        'ndvi_nov', 'evi_nov', 'ndwi_nov', 'mtci_nov', 'swir_nov',
-        'ndvi_dec', 'evi_dec', 'ndwi_dec', 'mtci_dec', 'swir_dec',
+        'ndvi_oct', 'evi_oct', 'ndwi_oct', 'mtci_oct', 'swir_oct', 'savi_oct', 'ndti_oct', 'bsi_oct',
+        'ndvi_nov', 'evi_nov', 'ndwi_nov', 'mtci_nov', 'swir_nov', 'savi_nov', 'ndti_nov', 'bsi_nov',
+        'ndvi_dec', 'evi_dec', 'ndwi_dec', 'mtci_dec', 'swir_dec', 'savi_dec', 'ndti_dec', 'bsi_dec',
         'class'
     ]
     df = pd.DataFrame(dataset, columns=columns)
-    df.to_csv('../csvs/rawWithEvenMoreSamples.csv', index=False)
+    df.to_csv('../csvs/rawWithSoilIndices.csv', index=False)

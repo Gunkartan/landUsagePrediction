@@ -9,7 +9,7 @@ import seaborn as sns
 from sklearn.utils.class_weight import compute_class_weight
 import optuna
 
-df = pd.read_csv('../csvs/newWithEvenMoreSamples.csv')
+df = pd.read_csv('../csvs/newWithSoilIndices.csv')
 x = df.drop(columns=['class'])
 y = df['class']
 le = LabelEncoder()
