@@ -73,7 +73,7 @@ if __name__ == '__main__':
         ndvi_nov, evi_nov, ndwi_nov, mtci_nov, swir_nov,
         ndvi_dec, evi_dec, ndwi_dec, mtci_dec, swir_dec
     ]
-    samples_per_class = 20000
+    samples_per_class = 200000
     dataset = []
     unique_classes = np.unique(labels)
     class_map = {
@@ -117,4 +117,4 @@ if __name__ == '__main__':
         'class'
     ]
     df = pd.DataFrame(dataset, columns=columns)
-    df.to_csv('../csvs/rawWithMoreSamples.csv', index=False)
+    df.to_csv('../csvs/rawWithEvenMoreSamples.csv', index=False)
