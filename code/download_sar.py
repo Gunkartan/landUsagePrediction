@@ -28,6 +28,7 @@ ee.batch.Export.image.toDrive(
     fileNamePrefix='rayong_sar',
     region=rayong,
     scale=10,
+    crs='EPSG:32647',
     maxPixels=1e13
 ).start()
 print('Done')

@@ -1,0 +1,55 @@
+<graph id="Sentinel1">
+    <version>1.0</version>
+    <node id="Apply-Orbit-File">
+        <operator>Apply-Orbit-File</operator>
+        <sources>
+            <sourceProduct>${input}</sourceProduct>
+        </sources>
+    </node>
+    <node id="Calibration">
+        <operator>Calibration</operator>
+        <sources>
+            <sourceProduct>Apply-Orbit-File</sourceProduct>
+        </sources>
+        <parameters>
+            <outputSigmaBand>true</outputSigmaBand>
+            <sourceBands>Intensity_VV,Intensity_VH</sourceBands>
+        </parameters>
+    </node>
+    <node id="Speckle-Filter">
+        <operator>Speckle-Filter</operator>
+        <sources>
+            <sourceProduct>Calibration</sourceProduct>
+        </sources>
+        <parameters>
+            <filter>Lee</filter>
+        </parameters>
+    </node>
+    <node id="Terrain-Correction">
+        <operator>Terrain-Correction</operator>
+        <sources>
+            <sourceProduct>Speckle-Filter</sourceProduct>
+        </sources>
+        <parameters>
+            <demName>SRTM 3Sec</demName>
+            <pixelSpacingInMeter>10.0</pixelSpacingInMeter>
+            <mapProjection>EPSG:32647</mapProjection>
+        </parameters>
+    </node>
+    <node id="LinearToFromdB">
+        <operator>LinearToFromdB</operator>
+        <sources>
+            <sourceProduct>Terrain-Correction</sourceProduct>
+        </sources>
+    </node>
+    <node id="Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct>LinearToFromdB</sourceProduct>
+        </sources>
+        <parameters>
+            <file>${output}</file>
+            <formatName>GeoTIFF</formatName>
+        </parameters>
+    </node>
+</graph>
