@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import numpy as np
 import rasterio
@@ -7,7 +8,40 @@ import geopandas as gpd
 from download_sar_snap import *
 from extract_sar import *
 
-def process_with_snap(input_file):
+def find_snap_gpt():
+    env_path = os.environ.get('SNAP_GPT_PATH')
+    gpt_path = os.environ.get('GPT_PATH')
+    snap_home = os.environ.get('SNAP_HOME')
+    candidates = [
+        env_path,
+        gpt_path,
+        os.path.join(snap_home, 'bin', 'gpt.exe') if snap_home else None,
+        os.path.join(snap_home, 'bin', 'gpt.bat') if snap_home else None,
+        shutil.which('gpt'),
+        shutil.which('gpt.exe'),
+        shutil.which('gpt.bat'),
+        shutil.which('gpt.cmd'),
+        r'C:\Program Files\esa-snap\bin\gpt.exe',
+        r'C:\Program Files\esa-snap\bin\gpt.bat',
+        r'C:\Program Files\SNAP\bin\gpt.exe',
+        r'C:\Program Files\SNAP\bin\gpt.bat',
+        r'C:\Program Files (x86)\esa-snap\bin\gpt.exe',
+        r'C:\Program Files (x86)\esa-snap\bin\gpt.bat',
+        r'C:\Program Files (x86)\SNAP\bin\gpt.exe',
+        r'C:\Program Files (x86)\SNAP\bin\gpt.bat',
+        os.path.expanduser(r'~\AppData\Local\Programs\SNAP\bin\gpt.exe'),
+        os.path.expanduser(r'~\AppData\Local\Programs\SNAP\bin\gpt.bat')
+    ]
+
+    for candidate in candidates:
+        if candidate and os.path.exists(candidate):
+            return candidate
+        
+    raise FileNotFoundError(
+        'Error because SNAP GPT was not found.'
+    )
+
+def process_with_snap(input_file, gpt_path):
     base_name = os.path.splitext(os.path.basename(input_file))[0]
     output_file = os.path.join(processed_dir, base_name + '.tif')
 
@@ -16,7 +50,6 @@ def process_with_snap(input_file):
 
         return output_file
     
-    gpt_path = r'C:\Program Files\esa-snap\bin\gpt.exe'
     cmd = [
         gpt_path,
         graph,
@@ -27,14 +60,14 @@ def process_with_snap(input_file):
 
     return output_file
 
-def process_all():
+def process_all(gpt_path):
     processed_files = []
 
     for file in sorted(os.listdir(input_dir)):
         if file.endswith('.SAFE'):
             path = os.path.join(input_dir, file)
             print(f'Processing {file}')
-            out = process_with_snap(path)
+            out = process_with_snap(path, gpt_path)
             processed_files.append(out)
 
     return processed_files
@@ -83,15 +116,32 @@ def clip_to_region():
             dst.write(out_image)
 
 if __name__ == '__main__':
-    input_dir = 'raw'
-    processed_dir = 'processed'
-    graph = '../graph/graph_sar.xml'
-    shapefile = '../shapefiles/LU_RYG_2561.shp'
+    code_dir = os.path.dirname(os.path.abspath(__file__))
+    project_dir = os.path.dirname(code_dir)
+    input_dir = os.path.join(code_dir, 'raw')
+    processed_dir = os.path.join(code_dir, 'processed')
+    graph = os.path.join(project_dir, 'graph', 'graph_sar.xml')
+    shapefile = os.path.join(project_dir, 'shapefiles', 'LU_RYG_2561.shp')
     os.makedirs(input_dir, exist_ok=True)
     os.makedirs(processed_dir, exist_ok=True)
+
+    try:
+        gpt_path = find_snap_gpt()
+
+    except FileNotFoundError as exc:
+        print(exc)
+        print(
+            'Please install ESA SNAP.'
+        )
+        print(
+            r'$env:SNAP_GPT_PATH = "C:\Program Files\SNAP\bin\gpt.exe"'
+        )
+
+        raise SystemExit(1)
+    
     download_sar_snap()
     extract_sar()
-    files = process_all()
+    files = process_all(gpt_path)
 
     if not files:
         raise ValueError('No processed files found')

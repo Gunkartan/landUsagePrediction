@@ -2,11 +2,11 @@ import zipfile
 import os
 
 def extract_sar():
-    output_dir = 'raw'
+    output_dir = raw_dir
 
     if not os.path.exists(output_dir):
         return
-
+    
     for file in os.listdir(output_dir):
         if file.endswith('.zip'):
             path = os.path.join(output_dir, file)
@@ -20,7 +20,7 @@ def extract_sar():
             try:
                 with zipfile.ZipFile(path, 'r') as zip_ref:
                     zip_ref.extractall(output_dir)
-                    
+
                 print(f'Extracted {file}')
                 os.remove(path)
 
@@ -29,3 +29,6 @@ def extract_sar():
 
             except Exception as e:
                 print(f'Failed to extract {file} with an exception {e}')
+
+if __name__ == '__main__':
+    raw_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'raw')
